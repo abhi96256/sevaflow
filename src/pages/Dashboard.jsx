@@ -23,6 +23,7 @@ import {
   Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import API_BASE_URL from '../config/api';
 import './Dashboard.css';
 
 const Dashboard = ({ language = 'en' }) => {
@@ -44,8 +45,8 @@ const Dashboard = ({ language = 'en' }) => {
   const fetchDashboardData = async () => {
     try {
       const [appRes, folRes] = await Promise.all([
-        fetch('http://localhost:5000/api/patients/appointments'),
-        fetch('http://localhost:5000/api/prescriptions/followups')
+        fetch(`${API_BASE_URL}/api/patients/appointments`),
+        fetch(`${API_BASE_URL}/api/prescriptions/followups`)
       ]);
       const appData = await appRes.json();
       const folData = await folRes.json();

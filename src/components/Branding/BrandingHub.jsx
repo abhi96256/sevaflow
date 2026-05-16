@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Globe, QrCode, Share2, Camera, Link, MapPin, Copy, ExternalLink, Smartphone, Check, Trash2, Download, Plus, Info, Sparkles, Users, ArrowUpRight, Brain, Zap, Activity } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import API_BASE_URL from '../../config/api';
 import './BrandingHub.css';
 
 const BrandingHub = ({ language }) => {
@@ -26,7 +27,7 @@ const BrandingHub = ({ language }) => {
   useEffect(() => {
     const fetchBranding = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/branding');
+        const res = await axios.get(`${API_BASE_URL}/api/branding`);
         if (res.data.id) {
           const data = res.data;
           setSlug(data.slug || 'dr-sharma-clinic');
@@ -97,7 +98,7 @@ const BrandingHub = ({ language }) => {
 
     try {
       // Save to Backend Database
-      await axios.post('http://localhost:5000/api/branding', brandingData);
+      await axios.post(`${API_BASE_URL}/api/branding`, brandingData);
       
       setIsUpdating(false);
       setShowSuccess(true);

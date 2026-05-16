@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Package, Search, Plus, Filter, AlertTriangle, TrendingDown, CheckCircle2, ShoppingCart, Calendar, History, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import API_BASE_URL from '../../config/api';
 import './InventoryManager.css';
 
 const InventoryManager = ({ language }) => {
@@ -18,7 +19,7 @@ const InventoryManager = ({ language }) => {
 
   const fetchInventory = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/inventory');
+      const res = await axios.get(`${API_BASE_URL}/api/inventory`);
       setInventory(res.data);
       setLoading(false);
     } catch (err) {
@@ -29,7 +30,7 @@ const InventoryManager = ({ language }) => {
 
   const handleRefill = async (id) => {
     try {
-      const res = await axios.post(`http://localhost:5000/api/inventory/refill/${id}`);
+      const res = await axios.post(`${API_BASE_URL}/api/inventory/refill/${id}`);
       setInventory(prev => prev.map(item => item.id === id ? res.data : item));
     } catch (err) {
       alert("Error refilling stock");
@@ -44,7 +45,7 @@ const InventoryManager = ({ language }) => {
       const runway = stockNum < 20 ? '3 days' : stockNum < 50 ? '2 weeks' : '2 months';
       
       const payload = { ...formData, stock: stockNum, status, runway, lastOrdered: new Date().toISOString().split('T')[0] };
-      const res = await axios.post('http://localhost:5000/api/inventory/add', payload);
+      const res = await axios.post(`${API_BASE_URL}/api/inventory/add`, payload);
       
       setInventory(prev => [...prev, res.data]);
       setShowAddModal(false);

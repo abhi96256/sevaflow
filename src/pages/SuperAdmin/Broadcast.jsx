@@ -10,6 +10,7 @@ import {
   Bell
 } from 'lucide-react';
 import axios from 'axios';
+import API_BASE_URL from '../../config/api';
 import './Broadcast.css';
 
 const priorityOptions = ['Low', 'Normal', 'High', 'Urgent'];
@@ -35,7 +36,7 @@ const Broadcast = () => {
 
   const fetchHistory = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/announcements/global');
+      const res = await axios.get(`${API_BASE_URL}/api/announcements/global`);
       setHistory(res.data);
     } catch (err) {
       console.error('Could not load history:', err);
@@ -49,7 +50,7 @@ const Broadcast = () => {
     if (!title.trim() || !message.trim()) return;
     setSending(true);
     try {
-      await axios.post('http://localhost:5000/api/announcements', {
+      await axios.post(`${API_BASE_URL}/api/announcements`, {
         title,
         message,
         priority,

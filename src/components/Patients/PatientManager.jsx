@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { UserPlus, Search, Phone, User, Calendar, History, Save, Sparkles, Filter, ListFilter, LayoutGrid, MoreVertical, Edit, Info, TrendingUp, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import API_BASE_URL from '../../config/api';
 import './PatientManager.css';
-
-const API_URL = 'http://localhost:5000/api/patients';
 
 const PatientManager = ({ language }) => {
   const [patients, setPatients] = useState([]);

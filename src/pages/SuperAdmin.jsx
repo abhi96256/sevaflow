@@ -15,6 +15,7 @@ import {
   Filter
 } from 'lucide-react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import './SuperAdmin.css';
 
 const SuperAdmin = () => {
@@ -32,8 +33,8 @@ const SuperAdmin = () => {
   const fetchData = async () => {
     try {
       const [clinicsRes, statsRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/clinics'),
-        axios.get('http://localhost:5000/api/clinics/stats')
+        axios.get(`${API_BASE_URL}/api/clinics`),
+        axios.get(`${API_BASE_URL}/api/clinics/stats`)
       ]);
       setClinics(clinicsRes.data);
       setGlobalStats(statsRes.data);

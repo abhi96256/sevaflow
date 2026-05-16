@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import API_BASE_URL from '../../config/api';
 import './SuperAdminDashboard.css';
 
 const SuperAdminDashboard = () => {
@@ -41,8 +42,8 @@ const SuperAdminDashboard = () => {
   const fetchData = async () => {
     try {
       const [clinicsRes, statsRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/clinics'),
-        axios.get('http://localhost:5000/api/clinics/stats')
+        axios.get(`${API_BASE_URL}/api/clinics`),
+        axios.get(`${API_BASE_URL}/api/clinics/stats`)
       ]);
       setClinics(clinicsRes.data);
       setStats(statsRes.data);
@@ -57,7 +58,7 @@ const SuperAdminDashboard = () => {
     if(!broadcastMessage) return;
     
     try {
-      await axios.post('http://localhost:5000/api/announcements', {
+      await axios.post(`${API_BASE_URL}/api/announcements`, {
         title: 'System Update',
         message: broadcastMessage,
         priority: 'High',

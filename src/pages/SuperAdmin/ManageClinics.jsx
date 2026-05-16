@@ -15,6 +15,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import axios from 'axios';
+import API_BASE_URL from '../../config/api';
 import './ManageClinics.css';
 
 const ManageClinics = () => {
@@ -39,7 +40,7 @@ const ManageClinics = () => {
 
   const fetchClinics = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/clinics');
+      const res = await axios.get(`${API_BASE_URL}/api/clinics`);
       setClinics(res.data);
     } catch (err) {
       console.error('Error fetching clinics:', err);
@@ -51,7 +52,7 @@ const ManageClinics = () => {
   const handleAddClinic = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/clinics', newClinic);
+      await axios.post(`${API_BASE_URL}/api/clinics`, newClinic);
       setShowAddModal(false);
       setNewClinic({ name: '', ownerName: '', email: '', phone: '', subscriptionPlan: 'Pro', doctorPassword: '', staffPassword: '' });
       fetchClinics();
