@@ -1,0 +1,387 @@
+:root {
+  --primary: #006970;
+  --primary-container: #00f0ff;
+  --on-primary: #ffffff;
+  --bg-color: #f7f9fb;
+  --surface: #ffffff;
+  --surface-low: #f2f4f6;
+  --outline: #b9cacb;
+  --text-main: #191c1e;
+  --text-sub: #3b494b;
+  --accent: #00dbe9;
+  --error: #ba1a1a;
+  --error-bg: #ffdad6;
+  --success: #006e35;
+  --success-bg: #cadbf5;
+}
+
+.patient-manager-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  background-color: var(--bg-color);
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Page Header */
+.manager-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+}
+
+.title-group h2 {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-sub);
+  font-size: 16px;
+  margin-top: 4px;
+}
+
+.add-patient-btn {
+  background-color: var(--primary);
+  color: var(--on-primary);
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 105, 112, 0.15);
+}
+
+.add-patient-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 105, 112, 0.2);
+}
+
+/* Bento Area */
+.bento-section {
+  background-color: var(--surface-low);
+  border-radius: 24px;
+  padding: 24px;
+  border: 1px solid rgba(185, 202, 203, 0.3);
+}
+
+/* Toolbar */
+.list-toolbar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.search-filter-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+.search-filter-wrapper input {
+  width: 100%;
+  background: white;
+  border: 1px solid var(--outline);
+  border-radius: 12px;
+  padding: 14px 14px 14px 48px;
+  font-size: 16px;
+  color: var(--text-main);
+  transition: all 0.3s;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+}
+
+.search-filter-wrapper input:focus {
+  outline: none;
+  border-color: var(--primary);
+  ring: 2px solid rgba(0, 105, 112, 0.1);
+}
+
+.filter-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6a7a7b;
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  background: white;
+  border: 1px solid var(--outline);
+  padding: 0 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background: #f8fafc;
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* Patient Grid */
+.patient-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+/* Bento Card Style */
+.bento-card {
+  background-color: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0px 4px 20px rgba(15, 23, 42, 0.03);
+}
+
+.bento-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-4px);
+  box-shadow: 0px 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.p-identity {
+  display: flex;
+  gap: 16px;
+}
+
+.p-avatar-large {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.p-avatar-large.regular { background: rgba(0, 240, 255, 0.1); color: var(--primary); }
+.p-avatar-large.critical { background: rgba(186, 26, 26, 0.1); color: var(--error); }
+.p-avatar-large.new { background: rgba(80, 95, 118, 0.1); color: var(--text-sub); }
+
+.p-info h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.status-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 99px;
+  letter-spacing: 0.05em;
+}
+
+.status-badge.regular { background: #dae2fd; color: #3f465c; }
+.status-badge.critical { background: var(--error-bg); color: var(--error); }
+.status-badge.new { background: var(--primary-container); color: var(--on-primary-fixed-variant); }
+
+.p-id {
+  font-size: 12px;
+  color: var(--text-sub);
+}
+
+/* Card Content */
+.card-details {
+  display: grid;
+  grid-cols: 2;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(185, 202, 203, 0.2);
+  border-bottom: 1px solid rgba(185, 202, 203, 0.2);
+  display: flex;
+  justify-content: space-between;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-sub);
+  font-size: 14px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.view-record-btn {
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-record-btn:hover {
+  background: rgba(0, 105, 112, 0.05);
+}
+
+.edit-btn-icon {
+  background: var(--surface-container-high, #e6e8ea);
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-btn-icon:hover {
+  background: var(--outline-variant);
+  color: var(--text-main);
+}
+
+/* Stats Card (Bento Asymmetric) */
+.stats-card-wide {
+  grid-column: span 2;
+  background: linear-gradient(135deg, #ffffff, #f2f4f6);
+  border-style: dashed;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stats-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stats-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.stats-info h4 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.stats-info p {
+  margin: 0;
+  color: var(--text-sub);
+  font-size: 15px;
+  max-width: 450px;
+  line-height: 1.5;
+}
+
+.stats-numbers {
+  display: flex;
+  gap: 40px;
+  margin-top: 16px;
+}
+
+.stat-number-item p:first-child {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--primary);
+  margin: 0;
+}
+
+.stat-number-item p:last-child {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.stats-visual {
+  width: 120px;
+  height: 120px;
+  background: var(--primary-container);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.4;
+}
+
+/* Footer */
+.load-more-footer {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid rgba(185, 202, 203, 0.3);
+  padding-top: 32px;
+}
+
+.load-more-btn {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.load-more-btn:hover {
+  gap: 12px;
+}
+
+@media (max-width: 1024px) {
+  .stats-card-wide {
+    grid-column: span 1;
+  }
+}

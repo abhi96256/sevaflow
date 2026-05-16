@@ -1,0 +1,73 @@
+.security-page {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.sec-header {
+  margin-bottom: 2.5rem;
+}
+
+.sec-header h2 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sec-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.sec-card {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.sec-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sec-icon-box.red { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.sec-icon-box.blue { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+.sec-icon-box.purple { background: rgba(168, 85, 247, 0.1); color: #a855f7; }
+
+.sec-info span { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+.sec-info h4 { font-size: 1.1rem; margin: 0.25rem 0; }
+
+.sec-badge { font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; display: inline-block; }
+.sec-badge.green { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.sec-badge.blue { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+.sec-badge.purple { background: rgba(168, 85, 247, 0.1); color: #a855f7; }
+
+.logs-panel { padding: 1.5rem; }
+
+.log-item {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s;
+}
+
+.log-item:hover { background: rgba(255, 255, 255, 0.02); }
+
+.log-content { flex: 1; display: flex; flex-direction: column; }
+.log-content strong { font-size: 0.9rem; }
+.log-content span { font-size: 0.75rem; color: #94a3b8; }
+
+.log-meta { text-align: right; display: flex; flex-direction: column; gap: 0.25rem; }
+.log-status { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; padding: 0.15rem 0.4rem; border-radius: 4px; }
+.log-status.success { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.log-status.warning { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.log-time { font-size: 0.75rem; color: #94a3b8; }

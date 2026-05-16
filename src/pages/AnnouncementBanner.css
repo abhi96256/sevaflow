@@ -1,0 +1,44 @@
+/* Announcement Banner in Dashboard */
+.announcement-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(239, 68, 68, 0.08));
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 14px;
+  padding: 1rem 1.5rem;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.announce-icon {
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.announce-content {
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+.announce-content strong {
+  color: #f59e0b;
+  margin-right: 0.5rem;
+}
+
+.announce-dismiss {
+  background: transparent;
+  border: none;
+  color: var(--text-sub);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.announce-dismiss:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
