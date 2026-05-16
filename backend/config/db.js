@@ -13,7 +13,10 @@ const sequelize = new Sequelize(
     logging: false,
     dialectOptions: {
       dateStrings: true,
-      typeCast: true
+      typeCast: true,
+      ssl: {
+        rejectUnauthorized: false
+      }
     },
     timezone: '+05:30'
   }

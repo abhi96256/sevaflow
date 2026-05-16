@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Zap, AlertTriangle, Thermometer, Calendar, ArrowRight, User, Info, Search, Plus, X, Activity, Brain, ShieldCheck, Download, Sparkles, Layout, ChevronDown, RefreshCw, BarChart } from 'lucide-react';
 import axios from 'axios';
+import API_BASE_URL from '../../config/api';
 import './NextGen.css';
 
 const NextGen = ({ language }) => {
@@ -37,7 +38,7 @@ const NextGen = ({ language }) => {
 
   const fetchPatients = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/patients');
+      const res = await axios.get(`${API_BASE_URL}/api/patients`);
       setAllPatients(res.data);
       setSearchResults(res.data);
     } catch (err) { console.error(err); }
@@ -62,7 +63,7 @@ const NextGen = ({ language }) => {
 
   const fetchPatientRecords = async (patientId) => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/patients/${patientId}/records`);
+      const res = await axios.get(`${API_BASE_URL}/api/patients/${patientId}/records`);
       setPatientRecords(res.data);
     } catch (err) { console.error(err); }
   };
@@ -72,7 +73,7 @@ const NextGen = ({ language }) => {
     setIsDecoding(true);
     setTimeout(async () => {
       try {
-        const res = await axios.post('http://localhost:5000/api/ai/decode-handwriting', { image: reportImage });
+        const res = await axios.post(`${API_BASE_URL}/api/ai/decode-handwriting`, { image: reportImage });
         setDecodedData(res.data);
       } catch (err) {
         setDecodedData({
