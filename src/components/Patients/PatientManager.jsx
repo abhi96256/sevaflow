@@ -23,7 +23,7 @@ const PatientManager = ({ language }) => {
 
   const fetchPatients = async () => {
     try {
-      const res = await axios.get(API_URL);
+      const res = await axios.get(`${API_BASE_URL}/api/patients`);
       setPatients(res.data);
     } catch (err) {
       console.error('Error fetching patients:', err);
@@ -33,7 +33,7 @@ const PatientManager = ({ language }) => {
   const handleAddPatient = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(API_URL, newPatient);
+      await axios.post(`${API_BASE_URL}/api/patients`, newPatient);
       setNewPatient({ name: '', age: '', gender: 'Male', phone: '', history: '' });
       setShowAddForm(false);
       fetchPatients();
