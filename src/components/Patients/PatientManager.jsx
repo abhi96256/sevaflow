@@ -7,6 +7,7 @@ import './PatientManager.css';
 
 const PatientManager = ({ language }) => {
   const [patients, setPatients] = useState([]);
+  const [stats, setStats] = useState({ totalPatients: 0, pendingRecords: 0 });
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [newPatient, setNewPatient] = useState({
@@ -19,6 +20,7 @@ const PatientManager = ({ language }) => {
 
   useEffect(() => {
     fetchPatients();
+    fetchStats();
   }, []);
 
   const fetchPatients = async () => {
@@ -30,6 +32,15 @@ const PatientManager = ({ language }) => {
     }
   };
 
+  const fetchStats = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/patients/stats`);
+      setStats(res.data);
+    } catch (err) {
+      console.error('Error fetching stats:', err);
+    }
+  };
+
   const handleAddPatient = async (e) => {
     e.preventDefault();
     try {
@@ -37,9 +48,20 @@ const PatientManager = ({ language }) => {
       setNewPatient({ name: '', age: '', gender: 'Male', phone: '', history: '' });
       setShowAddForm(false);
       fetchPatients();
+      fetchStats();
     } catch (err) {
       alert('Error adding patient');
     }
+  };
+
+  const getNewPatientsCount = () => {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    return patients.filter(p => {
+      if (!p.createdAt) return false;
+      const createdDate = new Date(p.createdAt);
+      return createdDate >= startOfMonth;
+    }).length;
   };
 
   const filteredPatients = patients.filter(p => 
@@ -248,15 +270,15 @@ const PatientManager = ({ language }) => {
                     <span>QUICK STATS</span>
                   </div>
                   <h4>Patient demographics growth this month</h4>
-                  <p>You've added {patients.length} new patients since May 1st. AI suggests reviewing recent clinical histories for potential anomalies.</p>
+                  <p>You've added {getNewPatientsCount()} new patients since May 1st. AI suggests reviewing recent clinical histories for potential anomalies.</p>
                   
                   <div className="stats-numbers">
                     <div className="stat-number-item">
-                      <p>{patients.length + 420}</p>
+                      <p>{stats.totalPatients}</p>
                       <p>Total Patients</p>
                     </div>
                     <div className="stat-number-item">
-                      <p>15</p>
+                      <p>{stats.pendingRecords}</p>
                       <p>Pending Records</p>
                     </div>
                   </div>

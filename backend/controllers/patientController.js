@@ -142,3 +142,64 @@ exports.getPatientFullHistory = async (req, res) => {
     res.status(500).json({ message: 'Error fetching patient history' });
   }
 };
+
+exports.getPatientStats = async (req, res) => {
+  try {
+    const totalPatients = await Patient.count();
+    
+    const pendingAppointments = await Appointment.count({
+      where: {
+        status: {
+          [Op.in]: ['Waiting', 'Scheduled']
+        }
+      }
+    });
+
+    const pendingRecordsCount = await PatientRecord.count({
+      where: { severityOrStatus: 'Pending' }
+    });
+
+    res.json({
+      totalPatients,
+      pendingRecords: pendingAppointments + pendingRecordsCount
+    });
+  } catch (err) {
+    console.error('Error fetching patient stats:', err);
+    res.status(500).json({ message: 'Error fetching patient stats' });
+  }
+};
+
+exports.createAppointment = async (req, res) => {
+  try {
+    const { patientId, appointmentDate, appointmentTime, status, reason } = req.body;
+    const appointment = await Appointment.create({
+      patientId,
+      appointmentDate: appointmentDate || new Date().toISOString().split('T')[0],
+      appointmentTime,
+      status: status || 'Waiting',
+      reason: reason || 'General Consultation'
+    });
+    
+    const appointmentWithPatient = await Appointment.findByPk(appointment.id, {
+      include: [{ model: Patient, as: 'patient' }]
+    });
+    
+    res.status(201).json(appointmentWithPatient);
+  } catch (err) {
+    console.error('Error creating appointment:', err);
+    res.status(500).json({ message: 'Error creating appointment' });
+  }
+};
+
+exports.deleteAppointment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Appointment.destroy({ where: { id } });
+    res.json({ message: 'Appointment deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting appointment:', err);
+    res.status(500).json({ message: 'Error deleting appointment' });
+  }
+};
+
+

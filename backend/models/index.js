@@ -6,6 +6,7 @@ const ClinicBranding = require('./ClinicBranding');
 const Appointment = require('./Appointment');
 const Clinic = require('./Clinic');
 const Announcement = require('./Announcement');
+const Invoice = require('./Invoice');
 
 // Associations
 Patient.hasMany(Prescription, { foreignKey: 'patientId' });
@@ -30,6 +31,9 @@ Prescription.belongsTo(Clinic, { foreignKey: 'clinicId' });
 Clinic.hasMany(Appointment, { foreignKey: 'clinicId' });
 Appointment.belongsTo(Clinic, { foreignKey: 'clinicId' });
 
+Clinic.hasMany(Invoice, { foreignKey: 'clinicId' });
+Invoice.belongsTo(Clinic, { foreignKey: 'clinicId' });
+
 const sequelize = require('../config/db');
 
 module.exports = {
@@ -41,5 +45,7 @@ module.exports = {
   Appointment,
   Clinic,
   Announcement,
+  Invoice,
   sequelize
 };
+

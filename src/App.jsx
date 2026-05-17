@@ -10,9 +10,9 @@ import Analytics from './components/Charts/Analytics';
 import PharmacyLink from './components/Pharmacy/PharmacyLink';
 import PrescriptionBuilder from './components/Prescription/PrescriptionBuilder';
 import Billing from './components/Billing/Billing';
-import TeleMedicine from './components/TeleMedicine/TeleMedicine';
+// import TeleMedicine from './components/TeleMedicine/TeleMedicine';
 import NextGen from './components/NextGen/NextGen';
-import BrandingHub from './components/Branding/BrandingHub';
+
 import Intelligence from './components/Intelligence/Intelligence';
 import PatientManager from './components/Patients/PatientManager';
 import InventoryManager from './components/Inventory/InventoryManager';
@@ -23,6 +23,7 @@ import Revenue from './pages/SuperAdmin/Revenue';
 import Broadcast from './pages/SuperAdmin/Broadcast';
 import Security from './pages/SuperAdmin/Security';
 import Login from './pages/Auth/Login';
+import ClinicProfile from './pages/ClinicProfile';
 import axios from 'axios';
 import API_BASE_URL from './config/api';
 import { Search, X, Calendar, Phone, User as UserIcon, Clock } from 'lucide-react';
@@ -93,6 +94,7 @@ function App() {
 
   const isSuperAdminPath = location.pathname.startsWith('/super-admin');
   const isLoginPath = location.pathname === '/login';
+  const isPublicProfilePath = location.pathname.startsWith('/c/');
 
   // // Temporarily disabled login check for development
   // if (!user && !isSuperAdminPath && !isLoginPath) {
@@ -118,6 +120,14 @@ function App() {
     return (
       <Routes>
         <Route path="/login" element={<Login />} />
+      </Routes>
+    );
+  }
+
+  if (isPublicProfilePath) {
+    return (
+      <Routes>
+        <Route path="/c/:slug" element={<ClinicProfile />} />
       </Routes>
     );
   }
@@ -216,11 +226,12 @@ function App() {
             <Route path="/intelligence" element={<Intelligence language={language} />} />
             <Route path="/prescription" element={<PrescriptionBuilder language={language} />} />
             <Route path="/billing" element={<Billing language={language} />} />
-            <Route path="/tele-consult" element={<TeleMedicine language={language} />} />
+            {/* <Route path="/tele-consult" element={<TeleMedicine language={language} />} /> */}
             <Route path="/analytics" element={<Analytics language={language} />} />
             <Route path="/ai-hub" element={<NextGen language={language} />} />
             <Route path="/pharmacy" element={<PharmacyLink language={language} />} />
             <Route path="/inventory" element={<InventoryManager language={language} />} />
+
           </Routes>
         </div>
 

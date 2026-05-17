@@ -16,12 +16,16 @@ import {
   ShieldCheck, 
   CloudLightning,
   Lightbulb,
-  Plus
+  Plus,
+  X
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
+import API_BASE_URL from '../../config/api';
 import './Billing.css';
+
 
 const Billing = ({ language }) => {
   const [items, setItems] = useState([]);
@@ -31,7 +35,68 @@ const Billing = ({ language }) => {
   const [generating, setGenerating] = useState(false);
   const invoiceRef = useRef(null);
 
+  const [editingItemId, setEditingItemId] = useState(null);
+  const [editDesc, setEditDesc] = useState('');
+  const [editSub, setEditSub] = useState('');
+  const [editPrice, setEditPrice] = useState('');
+
+  const startEditing = (item) => {
+    setEditingItemId(item.id);
+    setEditDesc(item.desc);
+    setEditSub(item.sub || '');
+    setEditPrice(item.price);
+  };
+
+  const saveEdit = (id) => {
+    const updated = items.map(item => {
+      if (item.id === id) {
+        return {
+          ...item,
+          desc: editDesc,
+          sub: editSub,
+          price: parseFloat(editPrice) || 0
+        };
+      }
+      return item;
+    });
+    setItems(updated);
+    
+    const savedBill = localStorage.getItem('pending_bill');
+    if (savedBill) {
+      const parsed = JSON.parse(savedBill);
+      localStorage.setItem('pending_bill', JSON.stringify({
+        ...parsed,
+        items: updated
+      }));
+    } else {
+      localStorage.setItem('pending_bill', JSON.stringify({
+        patientName: patientInfo.name,
+        patientPhone: patientInfo.phone,
+        items: updated
+      }));
+    }
+    
+    setEditingItemId(null);
+  };
+
+  const cancelEdit = () => {
+    setEditingItemId(null);
+  };
+
+  const [stats, setStats] = useState({ revenue: 0, count: 0 });
+
+  const fetchStats = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/billing/stats`);
+      setStats({ revenue: res.data.revenue, count: res.data.count });
+    } catch (err) {
+      console.error('Error fetching billing stats:', err);
+    }
+  };
+
   useEffect(() => {
+    fetchStats();
+    
     const savedBill = localStorage.getItem('pending_bill');
     if (savedBill) {
       const parsed = JSON.parse(savedBill);
@@ -51,18 +116,84 @@ const Billing = ({ language }) => {
   const gst = total * 0.18;
   const grandTotal = total + gst;
 
-  const handleSendInvoice = () => {
+  const handleSendInvoice = async () => {
     if (!patientInfo.phone) {
       alert('Patient phone number missing!');
       return;
     }
     setSending(true);
-    setTimeout(() => {
-      setSending(false);
+    try {
+      const invoiceId = `SF-${Math.floor(1000 + Math.random() * 9000)}`;
+
+      // STEP 1: Generate & Auto-Download PDF silently (doctor's digital record)
+      const element = invoiceRef.current;
+      element.dataset.invoiceId = invoiceId;
+      element.style.display = 'block';
+      await new Promise(r => setTimeout(r, 120)); // Let DOM paint
+      const canvas = await html2canvas(element, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`Invoice_${patientInfo.name}_${invoiceId}.pdf`);
+      element.style.display = 'none';
+
+      // STEP 2: Save Invoice to MySQL database
+      await axios.post(`${API_BASE_URL}/api/billing`, {
+        patientName: patientInfo.name,
+        patientPhone: patientInfo.phone,
+        items,
+        subtotal: total,
+        gst,
+        grandTotal
+      });
+
+      // STEP 3: Build WhatsApp message & open
+      let itemsListText = '';
+      items.forEach(item => {
+        itemsListText += `• *${item.desc}* — ₹${item.price.toFixed(2)}\n`;
+      });
+
+      const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+      const message =
+        `*🏥 SevaFlow Clinical Network*\n` +
+        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+        `*Invoice ID:* ${invoiceId}\n` +
+        `*Date:* ${today}\n` +
+        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+        `*Patient:* ${patientInfo.name}\n` +
+        `*Phone:* +91 ${patientInfo.phone}\n` +
+        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+        `*📋 Billed Items:*\n` +
+        `${itemsListText}` +
+        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+        `Subtotal: ₹${total.toFixed(2)}\n` +
+        `GST (18%): ₹${gst.toFixed(2)}\n` +
+        `*💰 Grand Total: ₹${grandTotal.toFixed(2)}*\n` +
+        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+        `📎 *PDF invoice saved to your device.*\n` +
+        `✨ Thank you for choosing SevaFlow! Get well soon! 🌿`;
+
+      let cleanPhone = patientInfo.phone.replace(/\D/g, '');
+      if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+
+      const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+
       setSent(true);
-      setTimeout(() => setSent(false), 3000);
-    }, 2000);
+      setTimeout(() => setSent(false), 4000);
+      localStorage.removeItem('pending_bill');
+      fetchStats();
+    } catch (err) {
+      console.error('Error:', err);
+      alert('Something went wrong. Please try again.');
+    } finally {
+      setSending(false);
+    }
   };
+
 
   const downloadPDF = async () => {
     setGenerating(true);
@@ -91,46 +222,123 @@ const Billing = ({ language }) => {
     const desc = e.target.desc.value;
     const price = parseInt(e.target.price.value);
     if (desc && price) {
-      setItems([...items, { id: Date.now(), desc, sub: 'Direct Addition', price, type: 'service' }]);
+      const newItem = { id: Date.now(), desc, sub: 'Direct Addition', price, type: 'service' };
+      const updated = [...items, newItem];
+      setItems(updated);
+      
+      const savedBill = localStorage.getItem('pending_bill');
+      if (savedBill) {
+        const parsed = JSON.parse(savedBill);
+        localStorage.setItem('pending_bill', JSON.stringify({
+          ...parsed,
+          items: updated
+        }));
+      } else {
+        localStorage.setItem('pending_bill', JSON.stringify({
+          patientName: patientInfo.name,
+          patientPhone: patientInfo.phone,
+          items: updated
+        }));
+      }
       e.target.reset();
     }
   };
 
   const deleteItem = (id) => {
-    setItems(items.filter(item => item.id !== id));
+    const updated = items.filter(item => item.id !== id);
+    setItems(updated);
+    
+    const savedBill = localStorage.getItem('pending_bill');
+    if (savedBill) {
+      const parsed = JSON.parse(savedBill);
+      localStorage.setItem('pending_bill', JSON.stringify({
+        ...parsed,
+        items: updated
+      }));
+    } else {
+      localStorage.setItem('pending_bill', JSON.stringify({
+        patientName: patientInfo.name,
+        patientPhone: patientInfo.phone,
+        items: updated
+      }));
+    }
   };
 
   return (
     <div className="billing-wrapper">
-      {/* Hidden Invoice for Export */}
-      <div className="hidden-invoice-container" ref={invoiceRef} style={{ display: 'none' }}>
-        <div style={{ padding: '40px', background: 'white' }}>
-          <h1>INVOICE</h1>
-          <p>SevaFlow Clinical Network</p>
-          <hr />
-          <p><strong>Patient:</strong> {patientInfo.name}</p>
-          <p><strong>Phone:</strong> {patientInfo.phone}</p>
-          <table style={{ width: '100%', marginTop: '20px', borderCollapse: 'collapse' }}>
+      {/* Hidden Professional Invoice for PDF Export */}
+      <div ref={invoiceRef} style={{ display: 'none', fontFamily: 'Arial, sans-serif', width: '794px', background: '#fff', color: '#1e293b' }}>
+        {/* Header */}
+        <div style={{ background: 'linear-gradient(135deg, #008080, #006060)', padding: '36px 40px', color: '#fff' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div style={{ fontSize: '28px', fontWeight: '900', letterSpacing: '-0.5px' }}>🏥 SevaFlow</div>
+              <div style={{ fontSize: '13px', opacity: 0.85, marginTop: '4px', fontWeight: '500' }}>Clinical Network — Digital Health Records</div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '28px', fontWeight: '900', letterSpacing: '2px' }}>INVOICE</div>
+              <div style={{ fontSize: '13px', opacity: 0.85, marginTop: '4px' }}>Invoice ID: {invoiceRef.current?.dataset?.invoiceId || 'SF-XXXX'}</div>
+              <div style={{ fontSize: '13px', opacity: 0.85 }}>{new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Patient Info */}
+        <div style={{ padding: '28px 40px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', gap: '48px' }}>
+          <div>
+            <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>Billed To</div>
+            <div style={{ fontSize: '18px', fontWeight: '800', color: '#1e293b' }}>{patientInfo.name}</div>
+            <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>📞 +91 {patientInfo.phone}</div>
+          </div>
+          <div>
+            <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>Clinic</div>
+            <div style={{ fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>SevaFlow Clinical Network</div>
+            <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>GST Registered | Digital Records</div>
+          </div>
+        </div>
+
+        {/* Items Table */}
+        <div style={{ padding: '28px 40px' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '2px solid #eee' }}>
-                <th align="left" style={{ padding: '10px' }}>Description</th>
-                <th align="right" style={{ padding: '10px' }}>Price</th>
+              <tr style={{ background: '#f1f5f9' }}>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', borderRadius: '8px 0 0 8px' }}>Description</th>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Details</th>
+                <th style={{ padding: '12px 16px', textAlign: 'right', fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', borderRadius: '0 8px 8px 0' }}>Amount</th>
               </tr>
             </thead>
             <tbody>
-              {items.map(i => (
-                <tr key={i.id} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ padding: '10px' }}>{i.desc}</td>
-                  <td align="right" style={{ padding: '10px' }}>₹{i.price.toFixed(2)}</td>
+              {items.map((item, idx) => (
+                <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9', background: idx % 2 === 0 ? '#fff' : '#fafbfc' }}>
+                  <td style={{ padding: '14px 16px', fontSize: '14px', fontWeight: '700', color: '#1e293b' }}>{item.desc}</td>
+                  <td style={{ padding: '14px 16px', fontSize: '12px', color: '#64748b' }}>{item.sub}</td>
+                  <td style={{ padding: '14px 16px', fontSize: '14px', fontWeight: '700', color: '#1e293b', textAlign: 'right' }}>₹{item.price.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <div style={{ marginTop: '30px', textAlign: 'right' }}>
-            <p>Subtotal: ₹{total.toFixed(2)}</p>
-            <p>GST (18%): ₹{gst.toFixed(2)}</p>
-            <h3>Grand Total: ₹{grandTotal.toFixed(2)}</h3>
+
+          {/* Totals */}
+          <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end' }}>
+            <div style={{ width: '260px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: '13px', color: '#64748b', borderBottom: '1px solid #f1f5f9' }}>
+                <span>Subtotal</span><span>₹{total.toFixed(2)}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: '13px', color: '#64748b', borderBottom: '1px solid #f1f5f9' }}>
+                <span>GST (18%)</span><span>₹{gst.toFixed(2)}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '14px 16px', background: 'linear-gradient(135deg, #008080, #006060)', color: '#fff', borderRadius: '10px', marginTop: '8px' }}>
+                <span style={{ fontSize: '15px', fontWeight: '800' }}>Grand Total</span>
+                <span style={{ fontSize: '18px', fontWeight: '900' }}>₹{grandTotal.toFixed(2)}</span>
+              </div>
+            </div>
           </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{ padding: '20px 40px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontSize: '11px', color: '#94a3b8' }}>Generated by SevaFlow Intelligence Platform • {new Date().toLocaleString('en-IN')}</div>
+          <div style={{ fontSize: '11px', color: '#008080', fontWeight: '700' }}>✅ GST Compliant • Digital Record Saved</div>
         </div>
       </div>
 
@@ -158,33 +366,78 @@ const Billing = ({ language }) => {
             </div>
             <div className="items-list">
               <AnimatePresence initial={false}>
-                {items.map(item => (
-                  <motion.div 
-                    layout
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    key={item.id} 
-                    className="item-row-bento"
-                  >
-                    <div className="item-identity">
-                      <div className={`item-icon-box ${item.type === 'med' ? 'med' : ''}`}>
-                        {item.type === 'med' ? <Pill size={20} /> : <FileText size={20} />}
-                      </div>
-                      <div className="item-details">
-                        <h4>{item.desc}</h4>
-                        <p>{item.sub}</p>
-                      </div>
-                    </div>
-                    <div className="item-actions-group">
-                      <span className="item-price">₹{item.price.toFixed(2)}</span>
-                      <div className="row-action-btns">
-                        <button><Edit3 size={16} /></button>
-                        <button onClick={() => deleteItem(item.id)}><Trash2 size={16} /></button>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+                {items.map(item => {
+                  const isEditing = item.id === editingItemId;
+                  return (
+                    <motion.div 
+                      layout
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      key={item.id} 
+                      className={`item-row-bento ${isEditing ? 'editing' : ''}`}
+                    >
+                      {isEditing ? (
+                        <div style={{ display: 'flex', flex: 1, gap: '12px', alignItems: 'center' }}>
+                          <div className={`item-icon-box ${item.type === 'med' ? 'med' : ''}`}>
+                            {item.type === 'med' ? <Pill size={20} /> : <FileText size={20} />}
+                          </div>
+                          <div style={{ display: 'flex', flex: 1, flexDirection: 'column', gap: '6px' }}>
+                            <input 
+                              type="text" 
+                              value={editDesc} 
+                              onChange={e => setEditDesc(e.target.value)}
+                              placeholder="Item Name"
+                              style={{ padding: '6px 12px', fontSize: '13px', fontWeight: 700, borderRadius: '8px', border: '1px solid var(--outline)', outline: 'none', background: '#ffffff', width: '90%' }}
+                            />
+                            <input 
+                              type="text" 
+                              value={editSub} 
+                              onChange={e => setEditSub(e.target.value)}
+                              placeholder="Details / Specifications"
+                              style={{ padding: '6px 12px', fontSize: '11px', fontWeight: 600, borderRadius: '8px', border: '1px solid var(--outline)', outline: 'none', background: '#ffffff', width: '90%' }}
+                            />
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                              <span style={{ position: 'absolute', left: '10px', fontSize: '13px', fontWeight: 700, color: '#64748b' }}>₹</span>
+                              <input 
+                                type="number" 
+                                value={editPrice} 
+                                onChange={e => setEditPrice(e.target.value)}
+                                placeholder="Price"
+                                style={{ padding: '6px 8px 6px 20px', fontSize: '13px', fontWeight: 700, borderRadius: '8px', border: '1px solid var(--outline)', outline: 'none', background: '#ffffff', width: '80px', textAlign: 'right' }}
+                              />
+                            </div>
+                            <div className="row-action-btns">
+                              <button onClick={() => saveEdit(item.id)} style={{ color: '#10b981', background: 'rgba(16, 185, 129, 0.1)', border: 'none', padding: '6px', borderRadius: '6px', cursor: 'pointer', display: 'flex' }}><CheckCircle size={16} /></button>
+                              <button onClick={cancelEdit} style={{ color: '#ef4444', background: 'rgba(239, 68, 68, 0.1)', border: 'none', padding: '6px', borderRadius: '6px', cursor: 'pointer', display: 'flex' }}><X size={16} /></button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="item-identity">
+                            <div className={`item-icon-box ${item.type === 'med' ? 'med' : ''}`}>
+                              {item.type === 'med' ? <Pill size={20} /> : <FileText size={20} />}
+                            </div>
+                            <div className="item-details">
+                              <h4>{item.desc}</h4>
+                              <p>{item.sub}</p>
+                            </div>
+                          </div>
+                          <div className="item-actions-group">
+                            <span className="item-price">₹{item.price.toFixed(2)}</span>
+                            <div className="row-action-btns">
+                              <button onClick={() => startEditing(item)} style={{ cursor: 'pointer' }}><Edit3 size={16} /></button>
+                              <button onClick={() => deleteItem(item.id)} style={{ cursor: 'pointer' }}><Trash2 size={16} /></button>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </motion.div>
+                  );
+                })}
               </AnimatePresence>
             </div>
           </div>
@@ -295,16 +548,19 @@ const Billing = ({ language }) => {
           <div className="revenue-stat-card">
             <div className="rev-header">
               <h4>Today's Revenue</h4>
-              <span className="trend">+12%</span>
+              <span className="trend" style={{ color: stats.revenue > 0 ? '#10b981' : '#94a3b8' }}>
+                {stats.revenue > 0 ? 'Active' : 'No Sales'}
+              </span>
             </div>
             <div className="rev-value-row">
-              <span className="value">₹42,850</span>
-              <span className="count">from 18 bills</span>
+              <span className="value">₹{stats.revenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span className="count">from {stats.count} bills</span>
             </div>
             <div className="rev-progress-track">
-              <div className="rev-progress-bar" style={{ width: '75%' }}></div>
+              <div className="rev-progress-bar" style={{ width: `${Math.min(100, (stats.revenue / 20000) * 100)}%` }}></div>
             </div>
           </div>
+
         </div>
       </div>
 

@@ -12,6 +12,7 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const clinicRoutes = require('./routes/clinicRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
+const billingRoutes = require('./routes/billingRoutes');
 
 dotenv.config();
 
@@ -30,6 +31,8 @@ app.use('/api/inventory', inventoryRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/clinics', clinicRoutes);
 app.use('/api/announcements', announcementRoutes);
+app.use('/api/billing', billingRoutes);
+
 
 // Database Connection & Sync
 sequelize.authenticate()

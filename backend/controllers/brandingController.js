@@ -31,3 +31,23 @@ exports.updateBranding = async (req, res) => {
     res.status(500).json({ message: 'Error saving branding' });
   }
 };
+
+exports.getPublicProfile = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const branding = await ClinicBranding.findOne({ where: { slug } });
+    if (!branding) {
+      return res.status(404).json({ message: 'Clinic profile not found' });
+    }
+    const data = branding.toJSON();
+    if (data.photos) {
+      try { data.photos = JSON.parse(data.photos); } catch { data.photos = []; }
+    } else {
+      data.photos = [];
+    }
+    res.json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error fetching public profile' });
+  }
+};

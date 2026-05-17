@@ -14,7 +14,7 @@ import {
   Stethoscope,
   Pill,
   Zap,
-  Globe
+  Sparkles
 } from 'lucide-react';
 import './Sidebar.css';
 
@@ -24,7 +24,6 @@ const Sidebar = ({ language }) => {
     { id: 'patients', icon: Users, label: { en: 'Patients', hi: 'मरीज' } },
     { id: 'intelligence', icon: Brain, label: { en: 'AI Intelligence', hi: 'AI बुद्धिमत्ता' } },
     { id: 'prescription', icon: FileText, label: { en: 'Prescription', hi: 'डिजिटल पर्चा' } },
-    { id: 'tele-consult', icon: Video, label: { en: 'Tele-Consult', hi: 'ऑनलाइन परामर्श' } },
   ];
 
   const operationsItems = [
@@ -33,7 +32,6 @@ const Sidebar = ({ language }) => {
     { id: 'analytics', icon: BarChart3, label: { en: 'Analytics', hi: 'विश्लेषण' } },
     { id: 'ai-hub', icon: Zap, label: { en: 'AI Innovation Hub', hi: 'AI लैब' } },
     { id: 'pharmacy', icon: Pill, label: { en: 'Pharmacy', hi: 'फार्मेसी' } },
-    { id: 'branding', icon: Globe, label: { en: 'Clinic Growth', hi: 'मरीज बढ़ाएं' } },
   ];
 
   return (

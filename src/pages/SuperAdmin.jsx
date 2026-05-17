@@ -55,7 +55,7 @@ const SuperAdmin = () => {
   const handleAddClinic = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/clinics', newClinic);
+      await axios.post(`${API_BASE_URL}/api/clinics`, newClinic);
       setShowAddModal(false);
       setNewClinic({ name: '', ownerName: '', email: '', phone: '' });
       fetchData(); // Refresh list
