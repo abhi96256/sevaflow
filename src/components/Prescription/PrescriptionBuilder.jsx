@@ -41,6 +41,7 @@ const PrescriptionBuilder = ({ language }) => {
   const [labTests, setLabTests] = useState([]);
   const [followUp, setFollowUp] = useState('');
   const [isListening, setIsListening] = useState(false);
+  const [toast, setToast] = useState(null); // { type: 'success'|'info', message }
 
   const [labOptions, setLabOptions] = useState([
     'CBC', 'HbA1c', 'Lipid Profile', 'Thyroid Profile', 'Urine Routine'
@@ -179,8 +180,19 @@ const PrescriptionBuilder = ({ language }) => {
 
   const applyTemplate = (template) => {
     const medsWithIds = template.meds.map(m => ({ ...m, id: Date.now() + Math.random(), isEditing: false }));
-    setMedicines(medsWithIds);
-    setDiagnosis(template.diagnosis);
+    
+    // Remove empty untitled rows before appending
+    const filteredCurrent = medicines.filter(m => m.name.trim() !== '');
+    
+    setMedicines([...filteredCurrent, ...medsWithIds]);
+    
+    if (diagnosis) {
+      if (!diagnosis.includes(template.diagnosis)) {
+        setDiagnosis(prev => prev + ', ' + template.diagnosis);
+      }
+    } else {
+      setDiagnosis(template.diagnosis);
+    }
   };
 
   const addTemplateMed = () => {
@@ -264,6 +276,11 @@ const PrescriptionBuilder = ({ language }) => {
     setShowDropdown(false);
   };
 
+  const showToast = (type, message, duration = 4500) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), duration);
+  };
+
   const handleSave = async () => {
     if (!patientName) return alert('Please select a patient.');
     setIsSaving(true);
@@ -296,8 +313,16 @@ const PrescriptionBuilder = ({ language }) => {
       };
       
       localStorage.setItem('pending_bill', JSON.stringify(pendingBill));
-      
-      alert('Prescription Saved & Transferred to Billing!');
+
+      // Show appropriate toast
+      if (followUp) {
+        const d = new Date(followUp);
+        const fmt = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        showToast('whatsapp', `✅ Prescription saved! WhatsApp reminder will be sent to ${patientName} on ${fmt} (1 day before follow-up).`);
+      } else {
+        showToast('success', `✅ Prescription saved & transferred to Billing!`);
+      }
+
       resetForm();
       fetchHistory();
     } catch (err) {
@@ -326,6 +351,20 @@ const PrescriptionBuilder = ({ language }) => {
 
   return (
     <div className="prescription-wrapper">
+
+      {/* ── WhatsApp Reminder Toast ── */}
+      {toast && (
+        <div className={`rx-toast rx-toast--${toast.type}`}>
+          {toast.type === 'whatsapp' && (
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="#25D366" style={{ flexShrink: 0 }}>
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+              <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.85L.057 23.571a.5.5 0 0 0 .612.612l5.684-1.463A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.943 0-3.757-.523-5.31-1.432l-.38-.225-3.938 1.013 1.04-3.802-.247-.393A9.955 9.955 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+            </svg>
+          )}
+          <span>{toast.message}</span>
+          <button onClick={() => setToast(null)} className="rx-toast__close">✕</button>
+        </div>
+      )}
       <header className="builder-header">
         <div className="title-group">
           <h2>{language === 'hi' ? 'स्मार्ट प्रिस्क्रिप्शन' : 'Smart Prescription'}</h2>
@@ -619,11 +658,27 @@ const PrescriptionBuilder = ({ language }) => {
               </div>
             </div>
             <div className="custom-card" style={{ padding: '24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                <Calendar size={20} color="var(--primary)" />
-                <h3 style={{ fontSize: '18px', fontWeight: 700, margin: 0 }}>Follow-up Date</h3>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Calendar size={20} color="var(--primary)" />
+                  <h3 style={{ fontSize: '18px', fontWeight: 700, margin: 0 }}>Follow-up Date</h3>
+                </div>
+                {followUp && (
+                  <span className="wa-reminder-badge">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="#25D366">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                      <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.85L.057 23.571a.5.5 0 0 0 .612.612l5.684-1.463A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.943 0-3.757-.523-5.31-1.432l-.38-.225-3.938 1.013 1.04-3.802-.247-.393A9.955 9.955 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                    </svg>
+                    Reminder ON
+                  </span>
+                )}
               </div>
               <input type="date" className="followup-input-bento" value={followUp} onChange={(e) => setFollowUp(e.target.value)} />
+              {followUp && (
+                <p className="followup-reminder-hint">
+                  📲 The patient will automatically receive a WhatsApp reminder tomorrow.
+                </p>
+              )}
               <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
                 {['7 Days', '15 Days', '1 Month'].map(d => {
                   const active = isPresetActive(d);

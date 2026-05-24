@@ -10,6 +10,7 @@ import Analytics from './components/Charts/Analytics';
 import PharmacyLink from './components/Pharmacy/PharmacyLink';
 import PrescriptionBuilder from './components/Prescription/PrescriptionBuilder';
 import Billing from './components/Billing/Billing';
+import Appointments from './components/Appointments/Appointments';
 // import TeleMedicine from './components/TeleMedicine/TeleMedicine';
 import NextGen from './components/NextGen/NextGen';
 
@@ -223,6 +224,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard language={language} />} />
             <Route path="/patients" element={<PatientManager language={language} />} />
+            <Route path="/appointments" element={<Appointments language={language} />} />
             <Route path="/intelligence" element={<Intelligence language={language} />} />
             <Route path="/prescription" element={<PrescriptionBuilder language={language} />} />
             <Route path="/billing" element={<Billing language={language} />} />

@@ -1,6 +1,9 @@
 const { Invoice } = require('../models');
 const { Op } = require('sequelize');
 
+// Auto-create invoices table if it doesn't exist (independent of global sync)
+Invoice.sync({ force: false }).catch(err => console.error('Invoice table sync error:', err));
+
 // Create a new invoice
 exports.createInvoice = async (req, res) => {
   try {

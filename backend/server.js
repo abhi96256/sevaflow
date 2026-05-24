@@ -13,6 +13,11 @@ const aiRoutes = require('./routes/aiRoutes');
 const clinicRoutes = require('./routes/clinicRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const billingRoutes = require('./routes/billingRoutes');
+const whatsappRoutes = require('./routes/whatsappRoutes');
+const appointmentRoutes = require('./routes/appointmentRoutes');
+
+// Follow-up Reminder Service
+const { startFollowUpReminder, sendFollowUpReminders } = require('./services/followUpReminderService');
 
 dotenv.config();
 
@@ -32,6 +37,18 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/clinics', clinicRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/billing', billingRoutes);
+app.use('/api/whatsapp', whatsappRoutes);
+app.use('/api/appointments', appointmentRoutes);
+
+// Manual trigger for follow-up reminders (testing / on-demand)
+app.post('/api/reminders/trigger-followup', async (req, res) => {
+  try {
+    const result = await sendFollowUpReminders();
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 
 // Database Connection & Sync
@@ -42,6 +59,8 @@ sequelize.authenticate()
   })
   .then(() => {
     console.log('Database synchronized...');
+    // Start the daily follow-up WhatsApp reminder cron job
+    startFollowUpReminder();
   })
   .catch(err => console.log('Error: ' + err));
 

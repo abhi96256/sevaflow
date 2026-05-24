@@ -5,6 +5,7 @@ import {
   Users, 
   Brain, 
   FileText, 
+  Calendar,
   Video, 
   Receipt, 
   Package, 
@@ -21,6 +22,7 @@ import './Sidebar.css';
 const Sidebar = ({ language }) => {
   const coreItems = [
     { id: '', icon: LayoutDashboard, label: { en: 'Dashboard', hi: 'डैशबोर्ड' } },
+    { id: 'appointments', icon: Calendar, label: { en: 'Appointments', hi: 'अपॉइंटमेंट' } },
     { id: 'patients', icon: Users, label: { en: 'Patients', hi: 'मरीज' } },
     { id: 'intelligence', icon: Brain, label: { en: 'AI Intelligence', hi: 'AI बुद्धिमत्ता' } },
     { id: 'prescription', icon: FileText, label: { en: 'Prescription', hi: 'डिजिटल पर्चा' } },

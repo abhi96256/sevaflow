@@ -84,6 +84,10 @@ const Billing = ({ language }) => {
   };
 
   const [stats, setStats] = useState({ revenue: 0, count: 0 });
+  const [waReady, setWaReady] = useState(false);
+  const [waQR, setWaQR] = useState(null);
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
 
   const fetchStats = async () => {
     try {
@@ -94,9 +98,36 @@ const Billing = ({ language }) => {
     }
   };
 
+  const fetchWAStatus = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/whatsapp/status`);
+      setWaReady(res.data.isReady);
+      if (res.data.hasQR) {
+        setWaQR(res.data.qrCode);
+      } else {
+        setWaQR(null);
+      }
+    } catch (err) {
+      // Backend not reachable
+    }
+  };
+
   useEffect(() => {
     fetchStats();
-    
+    fetchWAStatus();
+    // Poll WA status every 4 seconds until connected
+    const interval = setInterval(() => {
+      fetchWAStatus();
+    }, 4000);
+    return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (waReady) setShowQRModal(false);
+  }, [waReady]);
+
+  useEffect(() => {
     const savedBill = localStorage.getItem('pending_bill');
     if (savedBill) {
       const parsed = JSON.parse(savedBill);
@@ -121,74 +152,55 @@ const Billing = ({ language }) => {
       alert('Patient phone number missing!');
       return;
     }
+
+    // If WA not connected yet, show QR setup modal
+    if (!waReady) {
+      setShowQRModal(true);
+      return;
+    }
+
     setSending(true);
     try {
+      // STEP 1: Auto-download PDF silently (doctor's digital record)
       const invoiceId = `SF-${Math.floor(1000 + Math.random() * 9000)}`;
-
-      // STEP 1: Generate & Auto-Download PDF silently (doctor's digital record)
       const element = invoiceRef.current;
       element.dataset.invoiceId = invoiceId;
       element.style.display = 'block';
-      await new Promise(r => setTimeout(r, 120)); // Let DOM paint
+      await new Promise(r => setTimeout(r, 100));
       const canvas = await html2canvas(element, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgProps = pdf.getImageProperties(imgData);
       const pdfWidth = pdf.internal.pageSize.getWidth();
+      const imgProps = pdf.getImageProperties(imgData);
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
       pdf.save(`Invoice_${patientInfo.name}_${invoiceId}.pdf`);
       element.style.display = 'none';
 
-      // STEP 2: Save Invoice to MySQL database
-      await axios.post(`${API_BASE_URL}/api/billing`, {
+      // Get PDF as Base64 string to send to WhatsApp API
+      const pdfBase64 = pdf.output('datauristring').split(',')[1];
+
+      // STEP 2: Backend sends WhatsApp message automatically + saves to DB
+      const res = await axios.post(`${API_BASE_URL}/api/whatsapp/send-invoice`, {
         patientName: patientInfo.name,
         patientPhone: patientInfo.phone,
         items,
         subtotal: total,
         gst,
-        grandTotal
+        grandTotal,
+        pdfBase64
       });
 
-      // STEP 3: Build WhatsApp message & open
-      let itemsListText = '';
-      items.forEach(item => {
-        itemsListText += `• *${item.desc}* — ₹${item.price.toFixed(2)}\n`;
-      });
-
-      const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-      const message =
-        `*🏥 SevaFlow Clinical Network*\n` +
-        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-        `*Invoice ID:* ${invoiceId}\n` +
-        `*Date:* ${today}\n` +
-        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-        `*Patient:* ${patientInfo.name}\n` +
-        `*Phone:* +91 ${patientInfo.phone}\n` +
-        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-        `*📋 Billed Items:*\n` +
-        `${itemsListText}` +
-        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-        `Subtotal: ₹${total.toFixed(2)}\n` +
-        `GST (18%): ₹${gst.toFixed(2)}\n` +
-        `*💰 Grand Total: ₹${grandTotal.toFixed(2)}*\n` +
-        `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-        `📎 *PDF invoice saved to your device.*\n` +
-        `✨ Thank you for choosing SevaFlow! Get well soon! 🌿`;
-
-      let cleanPhone = patientInfo.phone.replace(/\D/g, '');
-      if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
-
-      const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, '_blank');
 
       setSent(true);
-      setTimeout(() => setSent(false), 4000);
+      setSuccessMsg(`✅ Sent! Invoice ${res.data.invoiceId}`);
+      setTimeout(() => { setSent(false); setSuccessMsg(''); }, 4000);
       localStorage.removeItem('pending_bill');
       fetchStats();
     } catch (err) {
       console.error('Error:', err);
-      alert('Something went wrong. Please try again.');
+      const errMsg = err?.response?.data?.error || 'Something went wrong.';
+      alert(errMsg);
     } finally {
       setSending(false);
     }
@@ -266,6 +278,77 @@ const Billing = ({ language }) => {
 
   return (
     <div className="billing-wrapper">
+
+      {/* ✅ Success Toast */}
+      {successMsg && (
+        <div style={{
+          position: 'fixed', top: '24px', right: '24px', zIndex: 99999,
+          background: 'linear-gradient(135deg, #10b981, #059669)',
+          color: '#fff', padding: '14px 24px', borderRadius: '14px',
+          fontWeight: '700', fontSize: '14px', boxShadow: '0 8px 32px rgba(16,185,129,0.35)',
+          display: 'flex', alignItems: 'center', gap: '10px',
+          animation: 'slideInRight 0.3s ease'
+        }}>
+          <MessageCircle size={18} /> {successMsg}
+        </div>
+      )}
+
+      {/* 📱 WhatsApp QR Setup Modal */}
+      {showQRModal && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.7)',
+          backdropFilter: 'blur(8px)', zIndex: 99998,
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }} onClick={() => setShowQRModal(false)}>
+          <div style={{
+            background: '#fff', borderRadius: '24px', padding: '40px',
+            maxWidth: '420px', width: '90%', boxShadow: '0 25px 60px rgba(0,0,0,0.3)',
+            textAlign: 'center'
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ fontSize: '40px', marginBottom: '12px' }}>📱</div>
+            <h2 style={{ fontSize: '22px', fontWeight: '800', color: '#1e293b', margin: '0 0 8px' }}>
+              Connect WhatsApp
+            </h2>
+            <p style={{ fontSize: '14px', color: '#64748b', margin: '0 0 24px', lineHeight: 1.6 }}>
+              Scan this QR code with your <strong>WhatsApp</strong> once. After that, invoices will send <strong>automatically</strong> — no popups, no clicks!
+            </p>
+
+            {waQR ? (
+              <div>
+                <img src={waQR} alt="WhatsApp QR Code"
+                  style={{ width: '240px', height: '240px', borderRadius: '12px', border: '2px solid #e2e8f0' }} />
+                <p style={{ fontSize: '12px', color: '#94a3b8', marginTop: '12px' }}>
+                  Open WhatsApp → ⋮ Menu → Linked Devices → Link a Device
+                </p>
+                <div style={{
+                  marginTop: '16px', padding: '10px 16px', background: '#fef9c3',
+                  borderRadius: '10px', fontSize: '12px', color: '#854d0e', fontWeight: '600'
+                }}>
+                  ⏳ Waiting for you to scan... Auto-updates every 4s
+                </div>
+              </div>
+            ) : waReady ? (
+              <div style={{ padding: '24px', background: '#f0fdf4', borderRadius: '12px' }}>
+                <div style={{ fontSize: '48px' }}>✅</div>
+                <p style={{ fontWeight: '700', color: '#16a34a', margin: '8px 0 0' }}>WhatsApp Connected!</p>
+                <p style={{ fontSize: '13px', color: '#64748b', margin: '4px 0 0' }}>Invoices will now send automatically.</p>
+              </div>
+            ) : (
+              <div style={{ padding: '24px' }}>
+                <div style={{ fontSize: '32px', marginBottom: '12px' }}>⏳</div>
+                <p style={{ color: '#64748b', fontSize: '14px' }}>Generating QR Code...<br/>Please wait a moment.</p>
+              </div>
+            )}
+
+            <button onClick={() => setShowQRModal(false)} style={{
+              marginTop: '24px', padding: '12px 32px', background: '#f1f5f9',
+              border: 'none', borderRadius: '10px', cursor: 'pointer',
+              fontWeight: '700', color: '#64748b', fontSize: '14px'
+            }}>Close</button>
+          </div>
+        </div>
+      )}
+
       {/* Hidden Professional Invoice for PDF Export */}
       <div ref={invoiceRef} style={{ display: 'none', fontFamily: 'Arial, sans-serif', width: '794px', background: '#fff', color: '#1e293b' }}>
         {/* Header */}
@@ -501,16 +584,34 @@ const Billing = ({ language }) => {
               disabled={sending}
             >
               {sending ? (
-                <RefreshCw size={20} className="spinning" />
+                <><RefreshCw size={20} className="spinning" /><span>Sending...</span></>
               ) : sent ? (
-                <CheckCircle size={20} />
+                <><CheckCircle size={20} /><span>Sent! ✅</span></>
               ) : (
                 <>
                   <MessageCircle size={20} />
-                  <span>Send WhatsApp Invoice</span>
+                  <span>{waReady ? 'Send WhatsApp Invoice' : 'Setup WhatsApp First'}</span>
                 </>
               )}
             </button>
+
+            {/* WA Connection Status Pill */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '8px 14px', borderRadius: '20px', marginTop: '4px',
+              background: waReady ? 'rgba(16,185,129,0.1)' : 'rgba(251,191,36,0.1)',
+              border: `1px solid ${waReady ? 'rgba(16,185,129,0.3)' : 'rgba(251,191,36,0.3)'}`,
+              cursor: waReady ? 'default' : 'pointer'
+            }} onClick={() => !waReady && setShowQRModal(true)}>
+              <div style={{
+                width: '8px', height: '8px', borderRadius: '50%',
+                background: waReady ? '#10b981' : '#f59e0b',
+                boxShadow: waReady ? '0 0 6px #10b981' : '0 0 6px #f59e0b'
+              }} />
+              <span style={{ fontSize: '12px', fontWeight: '700', color: waReady ? '#10b981' : '#b45309' }}>
+                {waReady ? 'WhatsApp Connected' : 'Click to Connect WhatsApp'}
+              </span>
+            </div>
 
             <div className="secondary-action-grid">
               <button className="sq-action-btn" onClick={downloadPDF} disabled={generating}>
@@ -567,6 +668,10 @@ const Billing = ({ language }) => {
       <style>{`
         @keyframes spinning { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .spinning { animation: spinning 1s linear infinite; }
+        @keyframes slideInRight {
+          from { opacity: 0; transform: translateX(40px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
       `}</style>
     </div>
   );

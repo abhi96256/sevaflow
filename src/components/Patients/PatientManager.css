@@ -283,76 +283,118 @@
   color: var(--text-main);
 }
 
-/* Stats Card (Bento Asymmetric) */
+/* Stats Card — Compact Horizontal Banner */
 .stats-card-wide {
-  grid-column: span 2;
-  background: linear-gradient(135deg, #ffffff, #f2f4f6);
-  border-style: dashed;
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #f0fafa, #e8f7f7);
+  border: 1px dashed rgba(0, 105, 112, 0.3);
+  border-radius: 14px;
+  padding: 14px 20px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  box-shadow: none;
 }
 
-.stats-info {
+.stats-card-wide:hover {
+  transform: none;
+  box-shadow: 0 4px 16px rgba(0, 105, 112, 0.08);
+  border-color: var(--primary);
+}
+
+.stats-left {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
 }
 
 .stats-tag {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
   color: var(--primary);
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: rgba(0, 105, 112, 0.08);
+  padding: 3px 8px;
+  border-radius: 99px;
 }
 
-.stats-info h4 {
+.stats-divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(0, 105, 112, 0.2);
+  flex-shrink: 0;
+}
+
+.stats-text {
+  min-width: 0;
+}
+
+.stats-text h4 {
   margin: 0;
-  font-size: 20px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.stats-info p {
-  margin: 0;
+.stats-text p {
+  margin: 2px 0 0;
   color: var(--text-sub);
-  font-size: 15px;
-  max-width: 450px;
-  line-height: 1.5;
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stats-numbers {
   display: flex;
-  gap: 40px;
-  margin-top: 16px;
+  gap: 20px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.stat-number-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: white;
+  border: 1px solid rgba(0, 105, 112, 0.15);
+  border-radius: 10px;
+  padding: 6px 14px;
+  min-width: 64px;
 }
 
 .stat-number-item p:first-child {
-  font-size: 28px;
+  font-size: 18px;
   font-weight: 800;
   color: var(--primary);
   margin: 0;
+  line-height: 1.2;
 }
 
 .stat-number-item p:last-child {
-  font-size: 12px;
+  font-size: 9px;
   font-weight: 700;
   color: var(--text-sub);
   text-transform: uppercase;
+  letter-spacing: 0.04em;
   margin: 0;
+  white-space: nowrap;
 }
 
 .stats-visual {
-  width: 120px;
-  height: 120px;
-  background: var(--primary-container);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.4;
+  display: none;
 }
 
 /* Footer */
@@ -380,8 +422,13 @@
   gap: 12px;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
   .stats-card-wide {
-    grid-column: span 1;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .stats-numbers {
+    align-self: stretch;
+    justify-content: space-evenly;
   }
 }

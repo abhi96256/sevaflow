@@ -35,8 +35,9 @@ import { jsPDF } from 'jspdf';
 const Dashboard = ({ language = 'en' }) => {
   const [greeting, setGreeting] = useState('');
   const [appointments, setAppointments] = useState([]);
-  const [totalPatients, setTotalPatients] = useState(1284);
   const [followups, setFollowups] = useState([]);
+  const [totalPatients, setTotalPatients] = useState(0);
+  const [earnings, setEarnings] = useState(0);
   const [loading, setLoading] = useState(true);
 
   // Modals visibility
@@ -66,14 +67,26 @@ const Dashboard = ({ language = 'en' }) => {
 
   const fetchDashboardData = async () => {
     try {
-      const [appRes, folRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/api/patients/appointments`),
-        fetch(`${API_BASE_URL}/api/prescriptions/followups`)
+      const [appRes, patRes, billRes, folRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/appointments/today`),
+        fetch(`${API_BASE_URL}/api/patients`),
+        fetch(`${API_BASE_URL}/api/billing/stats`),
+        fetch(`${API_BASE_URL}/api/prescriptions/followups`).catch(() => ({ json: async () => [] })) // Safe fallback
       ]);
       const appData = await appRes.json();
+      const patData = await patRes.json();
+      const billData = await billRes.json();
       const folData = await folRes.json();
+      
       setAppointments(appData);
-      setFollowups(folData);
+      setAllPatients(patData);
+      setTotalPatients(patData.length || 0);
+      setEarnings(billData.revenue || 0);
+      setFollowups(folData.length ? folData : []);
+      
+      if (patData.length > 0 && !selectedPatientId) {
+        setSelectedPatientId(patData[0].id);
+      }
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
     } finally {
@@ -81,29 +94,10 @@ const Dashboard = ({ language = 'en' }) => {
     }
   };
 
-  const fetchAllPatients = async () => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/patients`);
-      const data = await res.json();
-      setAllPatients(data);
-      if (data.length > 0 && !selectedPatientId) {
-        setSelectedPatientId(data[0].id);
-      }
-    } catch (err) {
-      console.error('Error fetching patients:', err);
-    }
-  };
-
-  useEffect(() => {
-    if (showScheduleModal) {
-      fetchAllPatients();
-    }
-  }, [showScheduleModal]);
-
   const handleUpdateStatus = async (apptId, nextStatus) => {
     try {
-      await fetch(`${API_BASE_URL}/api/patients/appointments/${apptId}/status`, {
-        method: 'PATCH',
+      await fetch(`${API_BASE_URL}/api/appointments/${apptId}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: nextStatus })
       });
@@ -116,7 +110,7 @@ const Dashboard = ({ language = 'en' }) => {
   const handleDeleteAppointment = async (apptId) => {
     if (!window.confirm('Are you sure you want to cancel this appointment?')) return;
     try {
-      await fetch(`${API_BASE_URL}/api/patients/appointments/${apptId}`, {
+      await fetch(`${API_BASE_URL}/api/appointments/${apptId}`, {
         method: 'DELETE'
       });
       fetchDashboardData();
@@ -146,12 +140,13 @@ const Dashboard = ({ language = 'en' }) => {
         const newPatientData = await patientRes.json();
         patientId = newPatientData.id;
       } else {
-        const timeVal = newApptTime || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        await fetch(`${API_BASE_URL}/api/patients/appointments`, {
+        const timeVal = newApptTime || new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        await fetch(`${API_BASE_URL}/api/appointments`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             patientId,
+            appointmentDate: new Date().toISOString().split('T')[0],
             appointmentTime: timeVal,
             reason: newApptReason,
             status: 'Waiting'
@@ -273,17 +268,17 @@ const Dashboard = ({ language = 'en' }) => {
             <span className="title">Total Patients</span>
           </div>
           <div className="value-row">
-            <h4>1,284</h4>
+            <h4>{totalPatients.toLocaleString()}</h4>
             <span className="trend up">+12% <TrendingUp size={14} /></span>
           </div>
         </div>
         <div className="stat-card-mini">
           <div className="top-row">
             <div className="mini-icon" style={{ background: '#ECFDF5', color: '#059669' }}><DollarSign size={18} /></div>
-            <span className="title">Earnings</span>
+            <span className="title">Today's Earnings</span>
           </div>
           <div className="value-row">
-            <h4>₹85,400</h4>
+            <h4>₹{earnings.toLocaleString('en-IN')}</h4>
             <span className="trend up">+8% <TrendingUp size={14} /></span>
           </div>
         </div>
@@ -293,8 +288,8 @@ const Dashboard = ({ language = 'en' }) => {
             <span className="title">Active Cases</span>
           </div>
           <div className="value-row">
-            <h4>14</h4>
-            <span className="trend down">-5% <TrendingDown size={14} /></span>
+            <h4>{appointments.filter(a => a.status === 'Waiting' || a.status === 'In Consultation').length}</h4>
+            <span className="trend up">Live <Activity size={14} /></span>
           </div>
         </div>
         <div className="stat-card-mini">
@@ -633,7 +628,7 @@ const Dashboard = ({ language = 'en' }) => {
                     </div>
                     <div className="eod-stat-box">
                       <p className="label">Total Revenue</p>
-                      <h3>₹{(800 * appointments.filter(a => a.status === 'Done').length) + 20700}</h3>
+                      <h3>₹{earnings.toLocaleString('en-IN')}</h3>
                     </div>
                     <div className="eod-stat-box">
                       <p className="label">Trust Index</p>

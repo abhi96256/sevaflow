@@ -22,3 +22,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment Variables
+.env
+.env.*
+backend/.env
+backend/.env.*
+
+# WhatsApp Web JS Cache / Chromium Profile
+backend/.wwebjs_auth/
+backend/.wwebjs_cache/
