@@ -410,41 +410,37 @@ const NextGen = ({ language }) => {
                 )}
               </section>
 
-              {/* General Body — Real Records */}
+              {/* General Body — Diagnosis Notes */}
               <section className="glass-card general-body-card">
                 <div className="section-title">
                   <h2 style={{ color: 'var(--text-dim)' }}>General Body</h2>
-                  <span className="records-badge" style={{ fontSize: '11px' }}>{records.length} Records</span>
+                  <span className="records-badge" style={{ fontSize: '11px' }}>{prescriptions.length} Records</span>
                 </div>
 
                 {loadingHistory ? (
                   <div className="mini-loader"><div className="loader" /></div>
-                ) : records.length === 0 ? (
+                ) : prescriptions.length === 0 ? (
                   <div className="empty-state-view">
                     <BarChart className="empty-icon" size={48} />
                     <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '4px' }}>No Records Found</h3>
-                    <p style={{ fontSize: '13px', color: 'var(--text-dim)' }}>No clinical records for this patient.</p>
+                    <p style={{ fontSize: '13px', color: 'var(--text-dim)' }}>No clinical notes for this patient.</p>
                     <div className="records-badge">0 Records Available</div>
                   </div>
                 ) : (
                   <div className="records-scroll">
-                    {records.map(r => (
-                      <div key={r.id} className="record-row">
-                        <div className="rec-icon-wrap" style={{ background: `${severityColor(r.severityOrStatus)}22` }}>
-                          <Stethoscope size={14} color={severityColor(r.severityOrStatus)} />
+                    {prescriptions.map(p => (
+                      <div key={p.id} className="record-row">
+                        <div className="rec-icon-wrap" style={{ background: `rgba(0,128,128,0.1)` }}>
+                          <FileText size={14} color="var(--primary)" />
                         </div>
                         <div className="rec-body">
-                          <p className="rec-title">{r.title}</p>
-                          {r.description && <p className="rec-desc">{r.description}</p>}
+                          <p className="rec-title">Diagnosis &amp; Notes</p>
+                          {p.diagnosis ? <p className="rec-desc">{p.diagnosis}</p> : <p className="rec-desc" style={{opacity: 0.5}}>No notes added</p>}
                           <p className="rec-meta">
-                            <span className="rec-type">{r.recordType}</span>
-                            {r.zoneId && <span className="rec-zone">📍 {r.zoneId}</span>}
-                            <span className="rec-date">{new Date(r.recordDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
+                            <span className="rec-type">Prescription Note</span>
+                            <span className="rec-date">{new Date(p.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
                           </p>
                         </div>
-                        <span className="sev-badge" style={{ color: severityColor(r.severityOrStatus), borderColor: severityColor(r.severityOrStatus) }}>
-                          {r.severityOrStatus || '—'}
-                        </span>
                       </div>
                     ))}
                   </div>
@@ -510,24 +506,7 @@ const NextGen = ({ language }) => {
               )}
             </section>
 
-            {/* Outbreak Banner — real patient count */}
-            <section className="outbreak-banner">
-              <div className="banner-glow" />
-              <div className="alert-left">
-                <div className="alert-icon-wrapper">
-                  <AlertTriangle className="alert-icon" />
-                </div>
-                <div>
-                  <p className="alert-title">Outbreak Potential Detected</p>
-                  <p className="alert-desc">
-                    AI-Neural clusters detected similar symptoms in{' '}
-                    <span className="alert-count">{stats.totalPatients} registered patients</span>{' '}
-                    in your clinic network.
-                  </p>
-                </div>
-              </div>
-              <button className="alert-btn">Send Clinical Alert</button>
-            </section>
+
           </div>
         </div>
       )}
