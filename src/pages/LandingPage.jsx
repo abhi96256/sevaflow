@@ -19,6 +19,9 @@ const navLinks = [
   { label: 'Contact', href: '#contact' },
 ];
 
+const BELOW_HERO_VIDEO =
+  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260423_161253_c72b1869-400f-45ed-ac0c-52f68c2ed5bd.mp4';
+
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -69,7 +72,7 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════
           1. DARK VIDEO HERO
       ═══════════════════════════════════════════ */}
-      <div className="relative min-h-screen flex flex-col bg-[#020b12] overflow-hidden">
+      <div className="relative z-20 min-h-screen flex flex-col bg-[#020b12] overflow-hidden">
         <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover z-0 opacity-40">
           <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4" type="video/mp4" />
         </video>
@@ -110,11 +113,21 @@ export default function LandingPage() {
       </div>
 
       {/* ═══════════════════════════════════════════
-          LIGHT CLINICAL SECTIONS START HERE
+          LIGHT CLINICAL SECTIONS — looping video bg
       ═══════════════════════════════════════════ */}
+      <div className="lp-below-hero">
+        <div className="lp-below-hero__media" aria-hidden="true">
+          <video autoPlay loop muted playsInline className="lp-below-hero__video">
+            <source src={BELOW_HERO_VIDEO} type="video/mp4" />
+          </video>
+          <div className="lp-below-hero__overlay" />
+          <div className="lp-below-hero__grain" />
+        </div>
+
+        <div className="lp-below-hero__content">
 
       {/* 2. PRODUCT PREVIEW */}
-      <section className="py-20 bg-white">
+      <section className="py-20 lp-section">
         <div className="max-w-[1280px] mx-auto px-4 md:px-16">
           <div className="text-center mb-12">
             <h2 className="text-[32px] font-bold text-[#0b1c30] mb-3" style={{ fontFamily: 'Manrope, sans-serif' }}>See SevaFlow in action</h2>
@@ -126,7 +139,7 @@ export default function LandingPage() {
               { icon: 'medication', tag: 'Intelligent Rx', title: 'Rx Builder', desc: 'AI-assisted prescription drafting with built-in interaction alerts and history.', img: 'https://images.unsplash.com/photo-1585435557343-3b092031a831?w=800&q=80&auto=format&fit=crop' },
               { icon: 'history', tag: 'Timeline', title: 'Clinical History', desc: 'A vertical timeline of every intervention, scan, and lab result in one view.', img: 'https://images.unsplash.com/photo-1666214280557-f1b5022eb634?w=800&q=80&auto=format&fit=crop' },
             ].map(c => (
-              <div key={c.title} className="group bg-white border border-[#bdc8d1]/30 rounded-xl overflow-hidden shadow-sm hover:-translate-y-1 transition-all duration-300">
+              <div key={c.title} className="group lp-card-glass border border-white/50 rounded-xl overflow-hidden shadow-sm hover:-translate-y-1 transition-all duration-300">
                 <div className="p-6">
                   <div className="flex items-center gap-2 mb-3 text-[#00668a]">
                     <Icon name={c.icon} />
@@ -143,7 +156,7 @@ export default function LandingPage() {
       </section>
 
       {/* 3. FEATURES GRID */}
-      <section id="solutions" className="py-20 bg-[#f8f9ff]">
+      <section id="solutions" className="py-20 lp-section lp-section--tint">
         <div className="max-w-[1280px] mx-auto px-4 md:px-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
             <div className="max-w-2xl">
@@ -163,7 +176,7 @@ export default function LandingPage() {
               { icon: 'whatsapp', title: 'WhatsApp Reminders', desc: 'Automated patient reminders sent 24h before every appointment.' },
               { icon: 'folder_shared', title: 'Patient CRM', desc: 'Full lifecycle tracking from first visit to long-term follow-ups.' },
             ].map(f => (
-              <div key={f.title} className="bg-[#eff4ff] p-6 rounded-xl border border-[#bdc8d1]/30 hover:-translate-y-1 transition-all duration-300">
+              <div key={f.title} className="lp-card-glass lp-card-glass--soft p-6 rounded-xl border border-white/40 hover:-translate-y-1 transition-all duration-300">
                 <div className="w-12 h-12 bg-[#00668a] rounded-lg flex items-center justify-center text-white mb-4">
                   <Icon name={f.icon} />
                 </div>
@@ -176,7 +189,7 @@ export default function LandingPage() {
       </section>
 
       {/* 4. HOW IT WORKS */}
-      <section className="py-20 bg-white">
+      <section className="py-20 lp-section">
         <div className="max-w-[1280px] mx-auto px-4 md:px-16">
           <div className="text-center mb-12">
             <span className="text-[#00668a] text-xs font-semibold uppercase tracking-widest">Get started in minutes</span>
@@ -188,7 +201,7 @@ export default function LandingPage() {
               { num: '02', icon: 'person_add', title: 'Add Patients', desc: 'Import existing records or add new patients. Instant search and a complete CRM ready from day one.' },
               { num: '03', icon: 'description', title: 'Prescribe & Track', desc: 'Use smart Rx templates, Voice input, or Neural OCR. Track every follow-up automatically.' },
             ].map((s, i) => (
-              <div key={s.num} className="relative bg-[#eff4ff] rounded-xl p-8 border border-[#bdc8d1]/30">
+              <div key={s.num} className="relative lp-card-glass lp-card-glass--soft rounded-xl p-8 border border-white/40">
                 {i < 2 && <div className="hidden md:block absolute top-10 right-0 translate-x-full w-8 border-t-2 border-dashed border-[#bdc8d1]/40 z-10" />}
                 <div className="text-5xl font-black text-[#00668a]/10 mb-4" style={{ fontFamily: 'Manrope, sans-serif' }}>{s.num}</div>
                 <div className="w-10 h-10 bg-[#00668a] rounded-lg flex items-center justify-center text-white mb-4">
@@ -203,7 +216,7 @@ export default function LandingPage() {
       </section>
 
       {/* 5. AI INNOVATION HUB */}
-      <section className="py-20 bg-[#dce9ff] relative overflow-hidden">
+      <section className="py-20 lp-section lp-section--glow relative overflow-hidden">
         <div className="absolute top-0 right-0 w-1/3 h-full opacity-[0.06] pointer-events-none flex items-center justify-end pr-8">
           <Icon name="neurology" className="text-[320px] text-[#00668a]" />
         </div>
@@ -219,7 +232,7 @@ export default function LandingPage() {
               { icon: 'mic', title: 'Voice-to-Text Rx', desc: 'Ambient clinical documentation. Record patient encounters and let SevaFlow draft the notes in English/Hindi.' },
               { icon: 'monitoring', title: 'Condition Tracker', desc: 'Predictive modeling for chronic conditions, alerting you before minor issues become major complications.' },
             ].map(f => (
-              <div key={f.title} className="group bg-white/70 backdrop-blur-sm p-8 rounded-2xl border border-white shadow-sm">
+              <div key={f.title} className="group lp-card-glass p-8 rounded-2xl border border-white/60 shadow-sm">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-2 bg-[#38bdf8]/20 rounded-lg text-[#00668a]">
                     <Icon name={f.icon} className="text-[28px]" />
@@ -237,7 +250,7 @@ export default function LandingPage() {
       </section>
 
       {/* 6. ROI SECTION */}
-      <section className="py-20 bg-[#00668a] text-white">
+      <section className="py-20 lp-section lp-section--brand text-white">
         <div className="max-w-[1280px] mx-auto px-4 md:px-16 text-center">
           <h2 className="text-[32px] font-bold mb-16" style={{ fontFamily: 'Manrope, sans-serif' }}>Real ROI for real clinics</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
@@ -257,10 +270,10 @@ export default function LandingPage() {
       </section>
 
       {/* 7. COMPARISON TABLE */}
-      <section className="py-20 bg-[#f8f9ff]">
+      <section className="py-20 lp-section lp-section--tint">
         <div className="max-w-[800px] mx-auto px-4 md:px-16">
           <h2 className="text-[32px] font-bold text-[#0b1c30] text-center mb-12" style={{ fontFamily: 'Manrope, sans-serif' }}>From broken to brilliant</h2>
-          <div className="bg-white rounded-2xl border border-[#bdc8d1]/30 shadow-sm overflow-hidden">
+          <div className="lp-card-glass rounded-2xl border border-white/50 shadow-sm overflow-hidden">
             <table className="w-full text-left">
               <thead className="bg-[#eff4ff]">
                 <tr>
@@ -298,7 +311,7 @@ export default function LandingPage() {
       </section>
 
       {/* 8. TESTIMONIALS */}
-      <section className="py-20 bg-[#eff4ff]">
+      <section className="py-20 lp-section lp-section--tint">
         <div className="max-w-[1280px] mx-auto px-4 md:px-16">
           <div className="text-center mb-12">
             <span className="text-[#00668a] text-xs font-semibold uppercase tracking-widest">Pilot Users</span>
@@ -311,7 +324,7 @@ export default function LandingPage() {
               { quote: 'The WhatsApp reminder system eliminated nearly all our no-shows. Incredible ROI from day one.', name: 'Dr. Ramesh Gupta', role: 'Pediatrician, Jaipur', initials: 'RG' },
               { quote: 'The AI OCR feature is unreal. We digitized 3 years of physical files in a single afternoon.', name: 'Dr. Amandeep Singh', role: 'Clinic Owner, Ludhiana', initials: 'AS' },
             ].map(t => (
-              <div key={t.name} className="bg-white p-8 rounded-xl shadow-sm border border-[#bdc8d1]/20 hover:-translate-y-1 transition-all duration-300">
+              <div key={t.name} className="lp-card-glass p-8 rounded-xl shadow-sm border border-white/50 hover:-translate-y-1 transition-all duration-300">
                 <div className="flex gap-1 text-[#00668a] mb-5">
                   {[...Array(5)].map((_, i) => <Icon key={i} name="star" className="text-[18px]" />)}
                 </div>
@@ -330,7 +343,7 @@ export default function LandingPage() {
       </section>
 
       {/* 9. PRICING */}
-      <section id="pricing" className="py-20 bg-white">
+      <section id="pricing" className="py-20 lp-section">
         <div className="max-w-[1280px] mx-auto px-4 md:px-16">
           <div className="text-center mb-16">
             <h2 className="text-[32px] font-bold text-[#0b1c30]" style={{ fontFamily: 'Manrope, sans-serif' }}>Simple, Clinical Pricing</h2>
@@ -342,7 +355,7 @@ export default function LandingPage() {
               { name: 'Professional', price: '₹2,499', period: '/mo', pop: true, features: ['Up to 5 doctors', 'Unlimited patients', 'WhatsApp reminders', 'GST billing & analytics', 'Neural OCR + Voice Rx', 'AI Innovation Hub'] },
               { name: 'Enterprise', price: 'Custom', period: '', pop: false, features: ['Unlimited doctors & branches', 'Dedicated support SLA', 'Custom integrations', 'White-label ready', 'HIPAA / DPDPA compliance'] },
             ].map((p, i) => (
-              <div key={p.name} className={`relative rounded-xl p-8 border shadow-sm ${p.pop ? 'border-2 border-[#00668a] md:scale-105 z-10 bg-white' : 'border-[#bdc8d1]/30 bg-white'}`}>
+              <div key={p.name} className={`relative rounded-xl p-8 border shadow-sm lp-card-glass ${p.pop ? 'border-2 border-[#00668a] md:scale-105 z-10' : 'border-white/50'}`}>
                 {p.pop && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#00668a] text-white px-5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider whitespace-nowrap">
                     Most Popular
@@ -370,7 +383,7 @@ export default function LandingPage() {
       </section>
 
       {/* 10. FAQ */}
-      <section className="py-20 bg-[#f8f9ff]">
+      <section className="py-20 lp-section lp-section--tint">
         <div className="max-w-[720px] mx-auto px-4 md:px-16">
           <div className="text-center mb-12">
             <h2 className="text-[32px] font-bold text-[#0b1c30]" style={{ fontFamily: 'Manrope, sans-serif' }}>Frequently asked questions</h2>
@@ -391,7 +404,7 @@ export default function LandingPage() {
       </section>
 
       {/* 11. FINAL CTA */}
-      <section className="py-24 bg-[#dce9ff]">
+      <section className="py-24 lp-section lp-section--glow">
         <div className="max-w-[800px] mx-auto px-4 md:px-16 text-center">
           <h2 className="text-[40px] font-bold text-[#0b1c30] mb-4" style={{ fontFamily: 'Manrope, sans-serif' }}>Ready to focus on your patients?</h2>
           <p className="text-[#3e484f] text-lg mb-10 leading-relaxed">Join 500+ clinics worldwide who have upgraded their operations with SevaFlow.</p>
@@ -404,7 +417,7 @@ export default function LandingPage() {
       </section>
 
       {/* 12. FOOTER */}
-      <footer id="contact" className="bg-[#eff4ff] border-t border-[#bdc8d1]/30 py-12">
+      <footer id="contact" className="lp-footer-glass border-t border-white/30 py-12">
         <div className="max-w-[1280px] mx-auto px-4 md:px-16 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-2">
             <Icon name="monitor_heart" className="text-[#00668a] text-[28px]" />
@@ -418,6 +431,9 @@ export default function LandingPage() {
           <p className="text-xs text-[#3e484f]">© {new Date().getFullYear()} SevaFlow. Precision Healthcare Systems.</p>
         </div>
       </footer>
+
+        </div>
+      </div>
 
     </div>
   );
