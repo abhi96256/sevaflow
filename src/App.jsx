@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Sidebar from './components/Sidebar/Sidebar';
 import Dashboard from './pages/Dashboard';
+import LandingPage from './pages/LandingPage';
 import './styles/theme.css';
 import './App.css';
 import { Globe, Moon, Sun } from 'lucide-react';
@@ -96,6 +97,15 @@ function App() {
   const isSuperAdminPath = location.pathname.startsWith('/super-admin');
   const isLoginPath = location.pathname === '/login';
   const isPublicProfilePath = location.pathname.startsWith('/c/');
+  const isLandingPagePath = location.pathname === '/';
+
+  if (isLandingPagePath) {
+    return (
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+      </Routes>
+    );
+  }
 
   // // Temporarily disabled login check for development
   // if (!user && !isSuperAdminPath && !isLoginPath) {
@@ -222,7 +232,7 @@ function App() {
 
         <div className="page-content">
           <Routes>
-            <Route path="/" element={<Dashboard language={language} />} />
+            <Route path="/dashboard" element={<Dashboard language={language} />} />
             <Route path="/patients" element={<PatientManager language={language} />} />
             <Route path="/appointments" element={<Appointments language={language} />} />
             <Route path="/intelligence" element={<Intelligence language={language} />} />
