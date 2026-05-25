@@ -84,7 +84,7 @@ const Login = () => {
          clinicName: selectedClinic.name,
          role: role
       }));
-      navigate('/');
+      navigate('/dashboard');
     } else {
       setError(`Invalid ${role} password for ${selectedClinic.name}`);
     }

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import './LandingPage.css';
 
 /* ─── Hero gradient text ─── */
@@ -133,22 +134,39 @@ export default function LandingPage() {
             <h2 className="text-[32px] font-bold text-[#0b1c30] mb-3" style={{ fontFamily: 'Manrope, sans-serif' }}>See SevaFlow in action</h2>
             <p className="text-[#3e484f] max-w-xl mx-auto">Explore integrated modules that unify your entire medical practice into a single source of truth.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { icon: 'groups', tag: 'Unified CRM', title: 'Patient Lifecycle', desc: 'Manage relationships from the first touch to post-care follow-ups seamlessly.', img: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&q=80&auto=format&fit=crop' },
-              { icon: 'medication', tag: 'Intelligent Rx', title: 'Rx Builder', desc: 'AI-assisted prescription drafting with built-in interaction alerts and history.', img: 'https://images.unsplash.com/photo-1585435557343-3b092031a831?w=800&q=80&auto=format&fit=crop' },
-              { icon: 'history', tag: 'Timeline', title: 'Clinical History', desc: 'A vertical timeline of every intervention, scan, and lab result in one view.', img: 'https://images.unsplash.com/photo-1666214280557-f1b5022eb634?w=800&q=80&auto=format&fit=crop' },
+              { icon: 'groups', tag: 'Unified CRM', title: 'Patient Lifecycle', desc: 'Manage relationships from the first touch to post-care follow-ups seamlessly.', img: '/img1.png' },
+              { icon: 'medication', tag: 'Intelligent Rx', title: 'Rx Builder', desc: 'AI-assisted prescription drafting with built-in interaction alerts and history.', img: '/img2.png' },
+              { icon: 'history', tag: 'Timeline', title: 'Clinical History', desc: 'A vertical timeline of every intervention, scan, and lab result in one view.', img: '/img3.png' },
             ].map(c => (
-              <div key={c.title} className="group lp-card-glass border border-white/50 rounded-xl overflow-hidden shadow-sm hover:-translate-y-1 transition-all duration-300">
-                <div className="p-6">
-                  <div className="flex items-center gap-2 mb-3 text-[#00668a]">
-                    <Icon name={c.icon} />
-                    <span className="text-xs font-semibold uppercase tracking-wider">{c.tag}</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-[#0b1c30] mb-2" style={{ fontFamily: 'Manrope, sans-serif' }}>{c.title}</h3>
-                  <p className="text-[#3e484f] text-sm leading-relaxed">{c.desc}</p>
+              <div key={c.title} className="group relative h-[420px] rounded-[32px] overflow-hidden cursor-pointer shadow-2xl transition-all duration-700 hover:shadow-[#00668a]/20">
+                {/* Background Image Container */}
+                <div className="absolute inset-0 z-0 bg-[#f8fafc] flex items-center justify-center p-4">
+                  <img src={c.img} alt={c.title} className="w-full h-full object-contain transition-transform duration-1000 ease-out group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-[#00668a]/0 group-hover:bg-[#00668a]/5 transition-colors duration-500 pointer-events-none" />
                 </div>
-                <img src={c.img} alt={c.title} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+
+                {/* Content Overlay */}
+                <div className="absolute inset-0 z-10 flex flex-col justify-end p-8">
+                  {/* Glass Card for Text */}
+                  <div className="translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700 ease-out py-6 px-7 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
+                    <div className="flex items-center gap-2 mb-2 text-white">
+                      <Icon name={c.icon} className="text-[18px]" />
+                      <span className="text-[9px] font-bold uppercase tracking-[0.2em] opacity-70">{c.tag}</span>
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2 leading-tight" style={{ fontFamily: 'Manrope, sans-serif' }}>{c.title}</h3>
+                    <p className="text-white/80 text-xs leading-relaxed font-medium line-clamp-2">{c.desc}</p>
+                  </div>
+                </div>
+
+                {/* Initial Tag (Visible when not hovering) */}
+                <div className="absolute top-6 left-6 z-20 group-hover:opacity-0 transition-opacity duration-300">
+                   <div className="px-4 py-2 rounded-full bg-white/90 backdrop-blur-sm border border-white/50 shadow-sm flex items-center gap-2">
+                     <Icon name={c.icon} className="text-[16px] text-[#00668a]" />
+                     <span className="text-[10px] font-bold text-[#0b1c30] uppercase tracking-wider">{c.title}</span>
+                   </div>
+                </div>
               </div>
             ))}
           </div>
@@ -173,7 +191,7 @@ export default function LandingPage() {
               { icon: 'analytics', title: 'Ops Analytics', desc: 'Visualized performance data for smarter administrative decisions.' },
               { icon: 'smart_toy', title: 'AI Assistance', desc: 'Neural OCR and Voice-to-Text for instant record digitization.' },
               { icon: 'group', title: 'Multi-User Access', desc: 'Role-based permissions for doctors, nurses, and admins.' },
-              { icon: 'whatsapp', title: 'WhatsApp Reminders', desc: 'Automated patient reminders sent 24h before every appointment.' },
+              { icon: 'chat', title: 'WhatsApp Reminders', desc: 'Automated patient reminders sent 24h before every appointment.' },
               { icon: 'folder_shared', title: 'Patient CRM', desc: 'Full lifecycle tracking from first visit to long-term follow-ups.' },
             ].map(f => (
               <div key={f.title} className="lp-card-glass lp-card-glass--soft p-6 rounded-xl border border-white/40 hover:-translate-y-1 transition-all duration-300">
@@ -383,22 +401,72 @@ export default function LandingPage() {
       </section>
 
       {/* 10. FAQ */}
-      <section className="py-20 lp-section lp-section--tint">
-        <div className="max-w-[720px] mx-auto px-4 md:px-16">
-          <div className="text-center mb-12">
-            <h2 className="text-[32px] font-bold text-[#0b1c30]" style={{ fontFamily: 'Manrope, sans-serif' }}>Frequently asked questions</h2>
+      <section className="py-24 relative overflow-hidden bg-[#f8fafc]">
+        {/* Decorative background elements */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-40">
+           <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#38bdf8]/10 rounded-full blur-3xl" />
+           <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-[#00668a]/10 rounded-full blur-3xl" />
+        </div>
+
+        <div className="max-w-[900px] mx-auto px-4 md:px-16 relative z-10">
+          <div className="text-center mb-16">
+            <span className="text-[#00668a] text-xs font-bold uppercase tracking-[0.2em] mb-4 block">Support</span>
+            <h2 className="text-4xl md:text-5xl font-bold text-[#0b1c30] tracking-tight" style={{ fontFamily: 'Manrope, sans-serif' }}>
+              Common Questions
+            </h2>
+            <p className="text-[#3e484f] mt-4 max-w-lg mx-auto text-sm font-medium opacity-70">
+              Everything you need to know about SevaFlow's security, setup, and features.
+            </p>
           </div>
-          <div className="divide-y divide-[#bdc8d1]/30">
+
+          <div className="space-y-4">
             {faqs.map((f, i) => (
-              <div key={i} className="py-5">
-                <button className="w-full flex justify-between items-center text-left gap-4 text-[#0b1c30] font-medium text-sm hover:text-[#00668a] transition-colors"
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}>
-                  <span>{f.q}</span>
-                  <Icon name={openFaq === i ? 'remove' : 'add'} className="text-[#00668a] shrink-0" />
+              <motion.div 
+                key={i}
+                initial={false}
+                className={`rounded-[24px] transition-all duration-300 border ${openFaq === i ? 'bg-white border-[#00668a]/20 shadow-xl' : 'bg-white/50 border-white/80 hover:bg-white/80 backdrop-blur-sm shadow-sm'}`}
+              >
+                <button 
+                  className="w-full flex justify-between items-center text-left py-6 px-8 gap-6 group"
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                >
+                  <span className={`text-base font-bold tracking-tight transition-colors duration-300 ${openFaq === i ? 'text-[#00668a]' : 'text-[#0b1c30]'}`}>
+                    {f.q}
+                  </span>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${openFaq === i ? 'bg-[#00668a] text-white rotate-45' : 'bg-[#00668a]/10 text-[#00668a] group-hover:bg-[#00668a] group-hover:text-white'}`}>
+                    <Icon name="add" className="text-[20px]" />
+                  </div>
                 </button>
-                {openFaq === i && <p className="mt-4 text-sm text-[#3e484f] leading-relaxed">{f.a}</p>}
-              </div>
+                
+                <AnimatePresence>
+                  {openFaq === i && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-8 pb-8 pt-0">
+                        <div className="w-full h-px bg-gradient-to-r from-transparent via-[#bdc8d1]/30 to-transparent mb-6" />
+                        <p className="text-[#3e484f] text-[15px] leading-relaxed font-medium opacity-90">
+                          {f.a}
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
             ))}
+          </div>
+
+          <div className="mt-16 text-center">
+            <div className="inline-flex items-center gap-4 p-2 pl-6 pr-3 rounded-full bg-[#00668a]/5 border border-[#00668a]/10">
+              <span className="text-sm font-medium text-[#3e484f]">Still have questions?</span>
+              <button className="bg-[#00668a] text-white text-xs font-bold px-6 py-2.5 rounded-full hover:scale-105 transition-transform">
+                Chat with Us
+              </button>
+            </div>
           </div>
         </div>
       </section>
