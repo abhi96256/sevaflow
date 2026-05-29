@@ -76,7 +76,7 @@ This is a highly detailed architectural and functional breakdown of "SevaFlow," 
   * Beautiful visual charts plotting monthly revenue, most common diagnoses, and patient retention rates.
   * Doctor performance metrics (if polyclinic with multiple staff).
 
-#### 9. AI Innovation Hub (NextGen)
+#### 9. AI Innovation Hub (NextGen
 * **Purpose:** The Crown Jewel. Where AI meets raw clinical data.
 * **Features:**
   * **Neural OCR Decoder:** Upload a photo of an old physical lab report or handwritten prescription (PDF/Image). The AI scans and extracts the diagnosis and medications instantly.

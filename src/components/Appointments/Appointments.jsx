@@ -16,7 +16,14 @@ const Appointments = ({ language }) => {
   const [selectedPatientId, setSelectedPatientId] = useState(null);
   const [selectedPatientName, setSelectedPatientName] = useState('');
   const [formDate, setFormDate] = useState(new Date().toISOString().split('T')[0]);
-  const [formTime, setFormTime] = useState('10:00 AM');
+  const [formTime, setFormTime] = useState(() => {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const h12 = hours % 12 || 12;
+    return `${String(h12).padStart(2, '0')}:${minutes} ${ampm}`;
+  });
   const [reason, setReason] = useState('');
 
   useEffect(() => {

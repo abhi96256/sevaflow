@@ -170,6 +170,7 @@
   margin: 0 0 4px 0;
   font-size: 15px;
   font-weight: 700;
+  color: var(--text-main);
 }
 
 .apt-patient .meta {
@@ -255,7 +256,7 @@
   align-items: center;
   margin-bottom: 24px;
 }
-.modal-header h3 { margin: 0; font-size: 20px; }
+.modal-header h3 { margin: 0; font-size: 20px; color: var(--text-main); }
 .close-btn { background: none; border: none; cursor: pointer; font-size: 20px; color: #666; }
 
 .form-group {
@@ -293,12 +294,22 @@
   padding: 12px;
   font-size: 14px;
   outline: none;
+  color: var(--text-main);
+  background: transparent;
 }
 .form-group input[type="date"], 
 .form-group input[type="text"], 
 .form-group select {
   border: 1px solid var(--outline);
   border-radius: 8px;
+}
+
+.form-group select, .form-group input[type="date"] {
+  cursor: pointer;
+}
+
+.patient-search-input input {
+  border: none !important;
 }
 
 .search-dropdown {
@@ -320,8 +331,11 @@
   padding: 12px;
   cursor: pointer;
   border-bottom: 1px solid #f1f5f9;
+  color: var(--text-main);
 }
 .dropdown-item:hover { background: #f8fafc; }
+.dropdown-item.empty { cursor: default; }
+.dropdown-item.empty:hover { background: transparent; }
 
 .submit-btn {
   width: 100%;

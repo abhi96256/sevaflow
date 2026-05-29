@@ -1,21 +1,18 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Users, 
-  Brain, 
-  FileText, 
+import {
+  LayoutDashboard,
+  Users,
+  Brain,
+  FileText,
   Calendar,
-  Video, 
-  Receipt, 
-  Package, 
-  BarChart3, 
-  Settings, 
+  Receipt,
+  Package,
+  BarChart3,
   LogOut,
   Stethoscope,
   Pill,
   Zap,
-  Sparkles
 } from 'lucide-react';
 import './Sidebar.css';
 
@@ -91,10 +88,7 @@ const Sidebar = ({ language }) => {
 
       {/* Footer Actions */}
       <div className="sidebar-footer">
-        <button className="footer-link">
-          <Settings size={20} />
-          <span>{language === 'hi' ? 'सेटिंग्स' : 'Settings'}</span>
-        </button>
+
         <button className="footer-link logout" onClick={() => {
           if (window.confirm('Logout from SevaFlow?')) {
             localStorage.removeItem('clinicUser');

@@ -400,7 +400,7 @@ const PrescriptionBuilder = ({ language }) => {
                 <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', border: '1px solid var(--outline)', borderRadius: '12px', zIndex: 100, marginTop: '8px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', maxHeight: '200px', overflowY: 'auto' }}>
                   {searchResults.map(p => (
                     <div key={p.id} onClick={() => selectPatient(p)} style={{ padding: '12px 20px', cursor: 'pointer', borderBottom: '1px solid #f0f0f0' }}>
-                      <div style={{ fontWeight: 700 }}>{p.name}</div>
+                      <div style={{ fontWeight: 700, color: 'var(--text-main)' }}>{p.name}</div>
                       <div style={{ fontSize: '12px', color: '#666' }}>{p.phone} | {p.age} Yrs</div>
                     </div>
                   ))}
@@ -515,7 +515,7 @@ const PrescriptionBuilder = ({ language }) => {
             <div className="custom-card" style={{ padding: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
                 <FlaskConical size={20} color="var(--primary)" />
-                <h3 style={{ fontSize: '18px', fontWeight: 700, margin: 0 }}>Requested Lab Tests</h3>
+                <h3 style={{ fontSize: '18px', fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>Requested Lab Tests</h3>
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
                 {labOptions.map(lab => (
@@ -661,7 +661,7 @@ const PrescriptionBuilder = ({ language }) => {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Calendar size={20} color="var(--primary)" />
-                  <h3 style={{ fontSize: '18px', fontWeight: 700, margin: 0 }}>Follow-up Date</h3>
+                  <h3 style={{ fontSize: '18px', fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>Follow-up Date</h3>
                 </div>
                 {followUp && (
                   <span className="wa-reminder-badge">
@@ -923,7 +923,7 @@ const PrescriptionBuilder = ({ language }) => {
           <div className="custom-card signature-card">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
               <PenTool size={20} color="var(--primary)" />
-              <h3 style={{ fontSize: '18px', fontWeight: 700, margin: 0 }}>Digital Signature</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>Digital Signature</h3>
             </div>
             <div className="signature-area">
               <span className="signature-name">Dr. Sharma</span>
@@ -936,7 +936,7 @@ const PrescriptionBuilder = ({ language }) => {
           <div className="custom-card" style={{ padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
               <History size={20} color="var(--primary)" />
-              <h3 style={{ fontSize: '18px', fontWeight: 700, margin: 0 }}>Recent History</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>Recent History</h3>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {savedPrescriptions.slice(0, 5).map(p => (

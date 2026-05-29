@@ -132,7 +132,7 @@ const PatientManager = ({ language }) => {
             className="add-patient-form bento-card"
             style={{ marginBottom: '24px' }}
           >
-            <h3 style={{ margin: '0 0 20px 0', fontSize: '20px' }}>Register New Patient</h3>
+            <h3 style={{ margin: '0 0 20px 0', fontSize: '20px', color: 'var(--text-main)' }}>Register New Patient</h3>
             <form onSubmit={handleAddPatient}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '20px' }}>
                 <div className="input-group">
@@ -264,13 +264,13 @@ const PatientManager = ({ language }) => {
 
               {/* Asymmetric Bento Card for Stats */}
               <motion.div variants={itemVariants} className="bento-card stats-card-wide">
-                <div className="stats-info">
+                <div className="stats-info" style={{ flex: 1 }}>
                   <div className="stats-tag">
                     <Info size={16} />
                     <span>QUICK STATS</span>
                   </div>
-                  <h4>Patient demographics growth this month</h4>
-                  <p>You've added {getNewPatientsCount()} new patients since May 1st. AI suggests reviewing recent clinical histories for potential anomalies.</p>
+                  <h4 style={{ color: 'var(--text-main)' }}>Patient demographics growth this month</h4>
+                  <p style={{ color: 'var(--text-sub)' }}>You've added {getNewPatientsCount()} new patients since May 1st. AI suggests reviewing recent clinical histories for potential anomalies.</p>
                   
                   <div className="stats-numbers">
                     <div className="stat-number-item">

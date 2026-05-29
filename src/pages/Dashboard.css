@@ -70,13 +70,13 @@
   font-size: 44px;
   font-weight: 700;
   line-height: 1.1;
-  color: var(--primary);
+  color: var(--text-main); /* Fixed: explicit text color instead of var(--primary) */
   margin: 0 0 12px 0;
 }
 
 .briefing-content p {
   font-size: 18px;
-  color: var(--text-sub);
+  color: var(--text-main); /* Fixed from --text-sub that might be white */
   max-width: 440px;
   margin-bottom: 32px;
 }
@@ -243,6 +243,7 @@
   font-size: 28px;
   font-weight: 700;
   margin: 0;
+  color: var(--text-main);
 }
 
 .stat-card-mini .trend {
@@ -251,6 +252,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
+  color: var(--text-sub);
 }
 
 .stat-card-mini .trend.up { color: #10B981; }
@@ -287,7 +289,7 @@
   gap: 12px;
 }
 
-.feed-title h3 { font-size: 20px; font-weight: 700; margin: 0; }
+.feed-title h3 { font-size: 20px; font-weight: 700; margin: 0; color: var(--text-main); }
 
 .live-indicator {
   background: #E0F2FE;
@@ -337,6 +339,7 @@
   font-size: 18px;
   font-weight: 700;
   margin: 0 0 8px 0;
+  color: var(--text-main);
 }
 
 .empty-state-dashboard p {
@@ -381,7 +384,7 @@
   color: var(--primary);
 }
 
-.ai-header-bento h3 { font-size: 18px; font-weight: 700; margin: 0; }
+.ai-header-bento h3 { font-size: 18px; font-weight: 700; margin: 0; color: var(--text-main); }
 
 .ai-tip-box {
   background: white;

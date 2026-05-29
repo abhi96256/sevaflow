@@ -146,6 +146,7 @@
   font-weight: 600;
   color: var(--text-main);
   transition: all 0.2s;
+  cursor: pointer;
 }
 
 .search-box-wrapper input::placeholder {
@@ -179,6 +180,7 @@
   font-size: 24px;
   font-weight: 600;
   margin: 0;
+  color: var(--text-main);
 }
 
 .add-text-btn {
@@ -398,6 +400,7 @@
   margin: 0;
   font-size: 18px;
   font-weight: 700;
+  color: var(--text-main);
 }
 
 .template-item-bento {
@@ -503,8 +506,8 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--secondary-container);
-  color: var(--on-secondary-container);
+  background: rgba(0, 105, 112, 0.1);
+  color: var(--text-main);
   display: flex;
   align-items: center;
   justify-content: center;
