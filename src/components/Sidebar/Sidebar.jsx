@@ -17,19 +17,21 @@ import {
 import './Sidebar.css';
 
 const Sidebar = ({ language }) => {
+  const user = JSON.parse(localStorage.getItem('clinicUser')) || {};
+  const userRole = user.role?.toLowerCase() || 'staff';
   const coreItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: { en: 'Dashboard', hi: 'डैशबोर्ड' } },
-    { id: 'appointments', icon: Calendar, label: { en: 'Appointments', hi: 'अपॉइंटमेंट' } },
-    { id: 'patients', icon: Users, label: { en: 'Patients', hi: 'मरीज' } },
     { id: 'intelligence', icon: Brain, label: { en: 'AI Intelligence', hi: 'AI बुद्धिमत्ता' } },
     { id: 'prescription', icon: FileText, label: { en: 'Prescription', hi: 'डिजिटल पर्चा' } },
+    { id: 'analytics', icon: BarChart3, label: { en: 'Analytics', hi: 'विश्लेषण' } },
+    { id: 'ai-hub', icon: Zap, label: { en: 'AI Innovation Hub', hi: 'AI लैब' } },
   ];
 
   const operationsItems = [
+    { id: 'appointments', icon: Calendar, label: { en: 'Appointments', hi: 'अपॉइंटमेंट' } },
+    { id: 'patients', icon: Users, label: { en: 'Patients', hi: 'मरीज' } },
     { id: 'billing', icon: Receipt, label: { en: 'Billing & GST', hi: 'बिलिंग' } },
     { id: 'inventory', icon: Package, label: { en: 'Inventory', hi: 'स्टॉक' } },
-    { id: 'analytics', icon: BarChart3, label: { en: 'Analytics', hi: 'विश्लेषण' } },
-    { id: 'ai-hub', icon: Zap, label: { en: 'AI Innovation Hub', hi: 'AI लैब' } },
     { id: 'pharmacy', icon: Pill, label: { en: 'Pharmacy', hi: 'फार्मेसी' } },
   ];
 
@@ -50,40 +52,44 @@ const Sidebar = ({ language }) => {
 
       {/* Navigation Scroll Area */}
       <div className="nav-scroll-area">
-        {/* Group: Core */}
-        <section className="nav-group">
-          <p className="nav-group-label">Core</p>
-          <nav>
-            {coreItems.map((item) => (
-              <NavLink
-                key={item.id}
-                to={`/${item.id}`}
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                end={item.id === 'dashboard'}
-              >
-                <item.icon size={20} />
-                <span>{item.label[language] || item.label.en}</span>
-              </NavLink>
-            ))}
-          </nav>
-        </section>
+        {/* Group: Core - Only for Doctors */}
+        {userRole === 'doctor' && (
+          <section className="nav-group">
+            <p className="nav-group-label">Core</p>
+            <nav>
+              {coreItems.map((item) => (
+                <NavLink
+                  key={item.id}
+                  to={`/${item.id}`}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                  end={item.id === 'dashboard'}
+                >
+                  <item.icon size={20} />
+                  <span>{item.label[language] || item.label.en}</span>
+                </NavLink>
+              ))}
+            </nav>
+          </section>
+        )}
 
-        {/* Group: Operations */}
-        <section className="nav-group">
-          <p className="nav-group-label">Operations</p>
-          <nav>
-            {operationsItems.map((item) => (
-              <NavLink
-                key={item.id}
-                to={`/${item.id}`}
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-              >
-                <item.icon size={20} />
-                <span>{item.label[language] || item.label.en}</span>
-              </NavLink>
-            ))}
-          </nav>
-        </section>
+        {/* Group: Operations - Only for Staff */}
+        {userRole === 'staff' && (
+          <section className="nav-group">
+            <p className="nav-group-label">Operations</p>
+            <nav>
+              {operationsItems.map((item) => (
+                <NavLink
+                  key={item.id}
+                  to={`/${item.id}`}
+                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                >
+                  <item.icon size={20} />
+                  <span>{item.label[language] || item.label.en}</span>
+                </NavLink>
+              ))}
+            </nav>
+          </section>
+        )}
       </div>
 
       {/* Footer Actions */}
